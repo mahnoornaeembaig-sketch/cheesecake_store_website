@@ -74,7 +74,7 @@ function Storefront() {
       setLoading(true);
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, description, price, image_url, section");
+        .select("id, name, description, price, image_url, category");
       if (cancelled) return;
       if (error) {
         setLoadError(error.message);
@@ -86,7 +86,7 @@ function Storefront() {
           description: r.description ?? "",
           price: Number(r.price) || 0,
           image_url: r.image_url || LOCAL_IMAGES[String(r.id)] || "",
-          section: (r.section === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["section"],
+          category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
         }));
         setProducts(rows);
         setLoadError(null);
