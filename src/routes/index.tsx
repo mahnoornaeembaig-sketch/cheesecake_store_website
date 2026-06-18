@@ -33,13 +33,13 @@ type CartItem = Product & {
   delivery_date: string;
 };
 
-// Local image fallbacks keyed by product id (used if DB row lacks an image_url)
+// Local images keyed by product name — always used, ignoring any Supabase image_url
 const LOCAL_IMAGES: Record<string, string> = {
-  "biscoff-override": biscoffImg.url,
-  "binary-cookie": binaryCookieImg.url,
-  "pistachio-tablet": pistachioImg.url,
-  "mango-io": mangoImg.url,
-  "strawberry-exe": strawberryImg.url,
+  "Biscoff Override": biscoffImg.url,
+  "Binary Cookie": binaryCookieImg.url,
+  "Pistachio Tablet": pistachioImg.url,
+  "Mango.io": mangoImg.url,
+  "Strawberry.exe": strawberryImg.url,
 };
 
 const DELIVERY_FEE = 350;
