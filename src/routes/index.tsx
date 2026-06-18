@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock } from "lucide-react";
 import biscoffImg from "@/assets/biscoff-override.jpg.asset.json";
 import binaryCookieImg from "@/assets/binary-cookie.jpg.asset.json";
 import pistachioImg from "@/assets/pistachio-tablet.jpg.asset.json";
 import mangoImg from "@/assets/mango-io.jpg.asset.json";
 import strawberryImg from "@/assets/strawberry-exe.jpg.asset.json";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,50 +33,17 @@ type CartItem = Product & {
   delivery_date: string;
 };
 
-const PRODUCTS: Product[] = [
-  {
-    id: "biscoff-override",
-    name: "Biscoff Override",
-    description: "Lotus Biscoff cheesecake with cream-infused cookie crust and creamy, smooth filling.",
-    price: 2850,
-    image_url: biscoffImg.url,
-    section: "PREMIUM SERIES",
-  },
-  {
-    id: "binary-cookie",
-    name: "Binary Cookie",
-    description: "Oreo cheesecake with double layered cookie base and rich dark cream filling.",
-    price: 2500,
-    image_url: binaryCookieImg.url,
-    section: "PREMIUM SERIES",
-  },
-  {
-    id: "pistachio-tablet",
-    name: "Pistachio Tablet",
-    description: "Kunafa Pistachio cheesecake with golden shredded pastry and roasted pistachio cream.",
-    price: 3000,
-    image_url: pistachioImg.url,
-    section: "PREMIUM SERIES",
-  },
-  {
-    id: "mango-io",
-    name: "Mango.io",
-    description: "Tropical mango cheesecake with fresh mango coulis and velvety cream cheese layer.",
-    price: 2600,
-    image_url: mangoImg.url,
-    section: "SIGNATURE COLLECTION",
-  },
-  {
-    id: "strawberry-exe",
-    name: "Strawberry.exe",
-    description: "Strawberry cheesecake with fresh berry compote and delicate graham cracker base.",
-    price: 2600,
-    image_url: strawberryImg.url,
-    section: "SIGNATURE COLLECTION",
-  },
-];
+// Local image fallbacks keyed by product id (used if DB row lacks an image_url)
+const LOCAL_IMAGES: Record<string, string> = {
+  "biscoff-override": biscoffImg.url,
+  "binary-cookie": binaryCookieImg.url,
+  "pistachio-tablet": pistachioImg.url,
+  "mango-io": mangoImg.url,
+  "strawberry-exe": strawberryImg.url,
+};
 
 const DELIVERY_FEE = 350;
+
 
 const fmtPKR = (n: number) =>
   "PKR " + n.toLocaleString("en-PK", { maximumFractionDigits: 0 });
