@@ -1,6 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock } from "lucide-react";
+import biscoffImg from "@/assets/biscoff-override.jpg.asset.json";
+import binaryCookieImg from "@/assets/binary-cookie.jpg.asset.json";
+import pistachioImg from "@/assets/pistachio-tablet.jpg.asset.json";
+import mangoImg from "@/assets/mango-io.jpg.asset.json";
+import strawberryImg from "@/assets/strawberry-exe.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,7 +38,7 @@ const PRODUCTS: Product[] = [
     name: "Biscoff Override",
     description: "Lotus Biscoff cheesecake with cream-infused cookie crust and creamy, smooth filling.",
     price: 2800,
-    image_url: "https://images.unsplash.com/photo-1567171466295-4afa63d45416?auto=format&fit=crop&w=1200&q=80",
+    image_url: biscoffImg.url,
     section: "PREMIUM SERIES",
   },
   {
@@ -41,7 +46,7 @@ const PRODUCTS: Product[] = [
     name: "Binary Cookie",
     description: "Oreo cheesecake with double layered cookie base and rich dark cream filling.",
     price: 2800,
-    image_url: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?auto=format&fit=crop&w=1200&q=80",
+    image_url: binaryCookieImg.url,
     section: "PREMIUM SERIES",
   },
   {
@@ -49,7 +54,7 @@ const PRODUCTS: Product[] = [
     name: "Pistachio Tablet",
     description: "Kunafa Pistachio cheesecake with golden shredded pastry and roasted pistachio cream.",
     price: 2800,
-    image_url: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=80",
+    image_url: pistachioImg.url,
     section: "PREMIUM SERIES",
   },
   {
@@ -57,7 +62,7 @@ const PRODUCTS: Product[] = [
     name: "Mango.io",
     description: "Tropic of mango cheesecake with fresh mango coulis and velvety cream cheese layer.",
     price: 2600,
-    image_url: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=1200&q=80",
+    image_url: mangoImg.url,
     section: "SIGNATURE COLLECTION",
   },
   {
@@ -65,7 +70,7 @@ const PRODUCTS: Product[] = [
     name: "Strawberry.exe",
     description: "Strawberry cheesecake with fresh berry compote and delicate graham cracker base.",
     price: 2600,
-    image_url: "https://images.unsplash.com/photo-1464195244916-405fa0a82545?auto=format&fit=crop&w=1200&q=80",
+    image_url: strawberryImg.url,
     section: "SIGNATURE COLLECTION",
   },
 ];
