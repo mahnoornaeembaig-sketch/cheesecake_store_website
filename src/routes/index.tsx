@@ -434,6 +434,124 @@ function Storefront() {
           )}
         </aside>
       </div>
+
+      {/* Checkout Modal */}
+      <div
+        className={`fixed inset-0 z-[60] flex items-center justify-center p-4 transition-opacity ${checkoutOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        aria-hidden={!checkoutOpen}
+      >
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !submitting && setCheckoutOpen(false)} />
+        <div
+          className="relative w-full max-w-md bg-card border border-border rounded-md overflow-hidden"
+          style={{ boxShadow: "var(--shadow-elegant)" }}
+        >
+          <div className="flex items-center justify-between px-6 h-20 border-b border-border">
+            <div>
+              <p className="section-eyebrow">Final Step</p>
+              <h3 className="font-serif text-2xl gold-text">Checkout</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => !submitting && setCheckoutOpen(false)}
+              aria-label="Close checkout"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border hover:border-primary disabled:opacity-50"
+              disabled={submitting}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <form onSubmit={submitOrder} className="p-6 space-y-5">
+            <div>
+              <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                <User className="h-3.5 w-3.5 gold-text" /> Full Name
+              </label>
+              <input
+                type="text"
+                required
+                value={custName}
+                onChange={(e) => setCustName(e.target.value)}
+                maxLength={80}
+                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                <Phone className="h-3.5 w-3.5 gold-text" /> Phone Number
+              </label>
+              <input
+                type="tel"
+                required
+                value={custPhone}
+                onChange={(e) => setCustPhone(e.target.value)}
+                placeholder="03XX-XXXXXXX"
+                maxLength={30}
+                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">We'll reach out on WhatsApp to confirm.</p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                <Mail className="h-3.5 w-3.5 gold-text" /> Email <span className="opacity-60 normal-case tracking-normal">(optional)</span>
+              </label>
+              <input
+                type="email"
+                value={custEmail}
+                onChange={(e) => setCustEmail(e.target.value)}
+                maxLength={120}
+                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              />
+            </div>
+
+            <div className="flex justify-between items-baseline pt-3 border-t border-border">
+              <span className="font-serif text-lg text-foreground">Total</span>
+              <span className="font-serif text-2xl gold-text">{fmtPKR(total)}</span>
+            </div>
+
+            {submitError && <p className="text-xs text-destructive">{submitError}</p>}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-14 inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-sm text-sm tracking-[0.3em] uppercase font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
+              style={{ boxShadow: "var(--shadow-gold)" }}
+            >
+              {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Placing…</> : <><Lock className="h-4 w-4" /> Place Order</>}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Confirmation Modal */}
+      <div
+        className={`fixed inset-0 z-[70] flex items-center justify-center p-4 transition-opacity ${confirmOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+        aria-hidden={!confirmOpen}
+      >
+        <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={() => setConfirmOpen(false)} />
+        <div
+          className="relative w-full max-w-md bg-card border border-border rounded-md p-10 text-center"
+          style={{ boxShadow: "var(--shadow-elegant)" }}
+        >
+          <div className="mx-auto h-16 w-16 rounded-full border border-primary/60 inline-flex items-center justify-center">
+            <Check className="h-7 w-7 gold-text" />
+          </div>
+          <p className="section-eyebrow mt-6">Thank You</p>
+          <h3 className="font-serif text-3xl gold-text mt-3">Order placed!</h3>
+          <div className="mt-4 mx-auto max-w-xs gold-divider" />
+          <p className="mt-5 text-sm text-muted-foreground leading-relaxed">
+            We will reach out on WhatsApp to confirm your delivery details shortly.
+          </p>
+          <button
+            onClick={() => setConfirmOpen(false)}
+            className="mt-8 w-full h-12 inline-flex items-center justify-center bg-primary text-primary-foreground rounded-sm text-xs tracking-[0.3em] uppercase font-medium hover:opacity-90 transition-opacity"
+            style={{ boxShadow: "var(--shadow-gold)" }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
