@@ -68,6 +68,35 @@ function Storefront() {
 
   const minDT = useMemo(minDeliveryDateTime, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, description, price, image_url, section");
+      if (cancelled) return;
+      if (error) {
+        setLoadError(error.message);
+        setProducts([]);
+      } else {
+        const rows = (data ?? []).map((r: any) => ({
+          id: String(r.id),
+          name: r.name,
+          description: r.description ?? "",
+          price: Number(r.price) || 0,
+          image_url: r.image_url || LOCAL_IMAGES[String(r.id)] || "",
+          section: (r.section === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["section"],
+        }));
+        setProducts(rows);
+        setLoadError(null);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+
   const addToCart = (p: Product) => {
     setCart((c) => {
       const found = c.find((i) => i.id === p.id);
