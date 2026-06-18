@@ -85,7 +85,7 @@ function Storefront() {
           name: r.name,
           description: r.description ?? "",
           price: Number(r.price) || 0,
-          image_url: r.image_url || LOCAL_IMAGES[String(r.id)] || "",
+          image_url: LOCAL_IMAGES[r.name] || "",
           category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
         }));
         setProducts(rows);
