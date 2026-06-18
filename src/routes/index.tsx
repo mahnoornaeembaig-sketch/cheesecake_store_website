@@ -144,7 +144,7 @@ function Storefront() {
       {/* Menu */}
       <main className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
         {sections.map((section) => {
-          const items = PRODUCTS.filter((p) => p.section === section);
+          const items = products.filter((p) => p.section === section);
           return (
             <section key={section} className="mt-16">
               <div className="flex items-center gap-6 mb-10">
