@@ -56,8 +56,12 @@ function minDeliveryDateTime() {
 }
 
 function Storefront() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [open, setOpen] = useState(false);
+
   const [deliveryDate, setDeliveryDate] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [dateError, setDateError] = useState("");
