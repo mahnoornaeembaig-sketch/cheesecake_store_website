@@ -24,7 +24,7 @@ type Product = {
   description: string;
   price: number;
   image_url: string;
-  section: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
+  category: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
 };
 
 type CartItem = Product & {
@@ -74,7 +74,7 @@ function Storefront() {
       setLoading(true);
       const { data, error } = await supabase
         .from("products")
-        .select("id, name, description, price, image_url, section");
+        .select("id, name, description, price, image_url, category");
       if (cancelled) return;
       if (error) {
         setLoadError(error.message);
@@ -86,7 +86,7 @@ function Storefront() {
           description: r.description ?? "",
           price: Number(r.price) || 0,
           image_url: r.image_url || LOCAL_IMAGES[String(r.id)] || "",
-          section: (r.section === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["section"],
+          category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
         }));
         setProducts(rows);
         setLoadError(null);
@@ -128,7 +128,7 @@ function Storefront() {
     setCustomMessage("");
   };
 
-  const sections: Array<Product["section"]> = ["PREMIUM SERIES", "SIGNATURE COLLECTION"];
+  const sections: Array<Product["category"]> = ["PREMIUM SERIES", "SIGNATURE COLLECTION"];
 
   return (
     <div className="min-h-screen">
@@ -179,7 +179,7 @@ function Storefront() {
           <p className="text-center text-destructive mt-16 text-sm">Could not load menu: {loadError}</p>
         )}
         {!loading && !loadError && sections.map((section) => {
-          const items = products.filter((p) => p.section === section);
+          const items = products.filter((p) => p.category === section);
           return (
             <section key={section} className="mt-16">
               <div className="flex items-center gap-6 mb-10">
@@ -207,7 +207,7 @@ function Storefront() {
                       <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent pointer-events-none" />
                       <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                         <span className="section-eyebrow bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
-                          {p.section.split(" ")[0]}
+                          {p.category.split(" ")[0]}
                         </span>
                         <span className="font-serif text-lg gold-text bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
                           {fmtPKR(p.price)}
