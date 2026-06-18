@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock } from "lucide-react";
 import biscoffImg from "@/assets/biscoff-override.jpg.asset.json";
 import binaryCookieImg from "@/assets/binary-cookie.jpg.asset.json";
 import pistachioImg from "@/assets/pistachio-tablet.jpg.asset.json";
 import mangoImg from "@/assets/mango-io.jpg.asset.json";
 import strawberryImg from "@/assets/strawberry-exe.jpg.asset.json";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,50 +33,17 @@ type CartItem = Product & {
   delivery_date: string;
 };
 
-const PRODUCTS: Product[] = [
-  {
-    id: "biscoff-override",
-    name: "Biscoff Override",
-    description: "Lotus Biscoff cheesecake with cream-infused cookie crust and creamy, smooth filling.",
-    price: 2850,
-    image_url: biscoffImg.url,
-    section: "PREMIUM SERIES",
-  },
-  {
-    id: "binary-cookie",
-    name: "Binary Cookie",
-    description: "Oreo cheesecake with double layered cookie base and rich dark cream filling.",
-    price: 2500,
-    image_url: binaryCookieImg.url,
-    section: "PREMIUM SERIES",
-  },
-  {
-    id: "pistachio-tablet",
-    name: "Pistachio Tablet",
-    description: "Kunafa Pistachio cheesecake with golden shredded pastry and roasted pistachio cream.",
-    price: 3000,
-    image_url: pistachioImg.url,
-    section: "PREMIUM SERIES",
-  },
-  {
-    id: "mango-io",
-    name: "Mango.io",
-    description: "Tropical mango cheesecake with fresh mango coulis and velvety cream cheese layer.",
-    price: 2600,
-    image_url: mangoImg.url,
-    section: "SIGNATURE COLLECTION",
-  },
-  {
-    id: "strawberry-exe",
-    name: "Strawberry.exe",
-    description: "Strawberry cheesecake with fresh berry compote and delicate graham cracker base.",
-    price: 2600,
-    image_url: strawberryImg.url,
-    section: "SIGNATURE COLLECTION",
-  },
-];
+// Local image fallbacks keyed by product id (used if DB row lacks an image_url)
+const LOCAL_IMAGES: Record<string, string> = {
+  "biscoff-override": biscoffImg.url,
+  "binary-cookie": binaryCookieImg.url,
+  "pistachio-tablet": pistachioImg.url,
+  "mango-io": mangoImg.url,
+  "strawberry-exe": strawberryImg.url,
+};
 
 const DELIVERY_FEE = 350;
+
 
 const fmtPKR = (n: number) =>
   "PKR " + n.toLocaleString("en-PK", { maximumFractionDigits: 0 });
@@ -88,13 +56,46 @@ function minDeliveryDateTime() {
 }
 
 function Storefront() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [open, setOpen] = useState(false);
+
   const [deliveryDate, setDeliveryDate] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [dateError, setDateError] = useState("");
 
   const minDT = useMemo(minDeliveryDateTime, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, description, price, image_url, section");
+      if (cancelled) return;
+      if (error) {
+        setLoadError(error.message);
+        setProducts([]);
+      } else {
+        const rows = (data ?? []).map((r: any) => ({
+          id: String(r.id),
+          name: r.name,
+          description: r.description ?? "",
+          price: Number(r.price) || 0,
+          image_url: r.image_url || LOCAL_IMAGES[String(r.id)] || "",
+          section: (r.section === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["section"],
+        }));
+        setProducts(rows);
+        setLoadError(null);
+      }
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
 
   const addToCart = (p: Product) => {
     setCart((c) => {
@@ -171,8 +172,14 @@ function Storefront() {
 
       {/* Menu */}
       <main className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
-        {sections.map((section) => {
-          const items = PRODUCTS.filter((p) => p.section === section);
+        {loading && (
+          <p className="text-center text-muted-foreground mt-16 text-sm tracking-[0.3em] uppercase">Loading menu…</p>
+        )}
+        {loadError && !loading && (
+          <p className="text-center text-destructive mt-16 text-sm">Could not load menu: {loadError}</p>
+        )}
+        {!loading && !loadError && sections.map((section) => {
+          const items = products.filter((p) => p.section === section);
           return (
             <section key={section} className="mt-16">
               <div className="flex items-center gap-6 mb-10">
