@@ -172,7 +172,13 @@ function Storefront() {
 
       {/* Menu */}
       <main className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
-        {sections.map((section) => {
+        {loading && (
+          <p className="text-center text-muted-foreground mt-16 text-sm tracking-[0.3em] uppercase">Loading menu…</p>
+        )}
+        {loadError && !loading && (
+          <p className="text-center text-destructive mt-16 text-sm">Could not load menu: {loadError}</p>
+        )}
+        {!loading && !loadError && sections.map((section) => {
           const items = products.filter((p) => p.section === section);
           return (
             <section key={section} className="mt-16">
