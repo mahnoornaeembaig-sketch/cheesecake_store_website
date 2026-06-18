@@ -129,11 +129,57 @@ function Storefront() {
       return;
     }
     setDateError("");
-    alert(`Order confirmed for ${new Date(deliveryDate).toLocaleString()}\nTotal: ${fmtPKR(total)}`);
-    clearCart();
-    setOpen(false);
-    setDeliveryDate("");
-    setCustomMessage("");
+    setSubmitError("");
+    setCheckoutOpen(true);
+  };
+
+  const submitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!custName.trim() || !custPhone.trim()) {
+      setSubmitError("Name and phone number are required.");
+      return;
+    }
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const { data: order, error: orderErr } = await supabase
+        .from("orders")
+        .insert({
+          customer_name: custName.trim(),
+          phone: custPhone.trim(),
+          email: custEmail.trim() || null,
+          delivery_date: deliveryDate,
+          custom_message: customMessage || null,
+          total_amount: total,
+        })
+        .select("id")
+        .single();
+      if (orderErr || !order) throw new Error(orderErr?.message || "Failed to create order");
+
+      const items = cart.map((i) => ({
+        order_id: order.id,
+        product_id: i.id,
+        product_name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      }));
+      const { error: itemsErr } = await supabase.from("order_items").insert(items);
+      if (itemsErr) throw new Error(itemsErr.message);
+
+      clearCart();
+      setCheckoutOpen(false);
+      setOpen(false);
+      setDeliveryDate("");
+      setCustomMessage("");
+      setCustName("");
+      setCustPhone("");
+      setCustEmail("");
+      setConfirmOpen(true);
+    } catch (err: any) {
+      setSubmitError(err?.message || "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const sections: Array<Product["category"]> = ["PREMIUM SERIES", "SIGNATURE COLLECTION"];
