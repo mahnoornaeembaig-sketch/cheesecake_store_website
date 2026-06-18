@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock } from "lucide-react";
+import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2 } from "lucide-react";
 import biscoffImg from "@/assets/biscoff-override.jpg.asset.json";
 import binaryCookieImg from "@/assets/binary-cookie.jpg.asset.json";
 import pistachioImg from "@/assets/pistachio-tablet.jpg.asset.json";
