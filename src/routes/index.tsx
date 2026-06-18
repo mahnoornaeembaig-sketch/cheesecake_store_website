@@ -24,7 +24,7 @@ type Product = {
   description: string;
   price: number;
   image_url: string;
-  section: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
+  category: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
 };
 
 type CartItem = Product & {
