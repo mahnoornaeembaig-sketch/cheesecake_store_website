@@ -146,8 +146,8 @@ function Storefront() {
         .from("orders")
         .insert({
           customer_name: custName.trim(),
-          phone: custPhone.trim(),
-          email: custEmail.trim() || null,
+          customer_phone: custPhone.trim(),
+          customer_email: custEmail.trim() || null,
           delivery_date: deliveryDate,
           custom_message: customMessage || null,
           total_amount: total,
