@@ -159,7 +159,6 @@ function Storefront() {
       const items = cart.map((i) => ({
         order_id: order.id,
         product_id: i.id,
-        product_name: i.name,
         quantity: i.quantity,
         unit_price: i.price,
       }));
