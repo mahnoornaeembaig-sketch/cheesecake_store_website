@@ -74,6 +74,10 @@ function Storefront() {
   const [submitError, setSubmitError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  const [nameError, setNameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
+
   const minDT = useMemo(minDeliveryDateTime, []);
 
   useEffect(() => {
