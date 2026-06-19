@@ -161,7 +161,7 @@ function Storefront() {
         product_id: i.id,
         product_name: i.name,
         quantity: i.quantity,
-        price: i.price,
+        unit_price: i.price,
       }));
       const { error: itemsErr } = await supabase.from("order_items").insert(items);
       if (itemsErr) throw new Error(itemsErr.message);
