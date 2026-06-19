@@ -137,12 +137,43 @@ function Storefront() {
     setCheckoutOpen(true);
   };
 
+  const pkPhoneRegex = /^(03\d{9}|\+923\d{9})$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateCheckout = () => {
+    let valid = true;
+    if (!custName.trim()) {
+      setNameError("Customer name is required.");
+      valid = false;
+    } else {
+      setNameError("");
+    }
+
+    const phone = custPhone.trim();
+    if (!phone) {
+      setPhoneError("Phone number is required.");
+      valid = false;
+    } else if (!pkPhoneRegex.test(phone)) {
+      setPhoneError("Please enter a valid Pakistani mobile number (e.g., 03XXXXXXXXX).");
+      valid = false;
+    } else {
+      setPhoneError("");
+    }
+
+    const email = custEmail.trim();
+    if (email && !emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      valid = false;
+    } else {
+      setEmailError("");
+    }
+
+    return valid;
+  };
+
   const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!custName.trim() || !custPhone.trim()) {
-      setSubmitError("Name and phone number are required.");
-      return;
-    }
+    if (!validateCheckout()) return;
     setSubmitting(true);
     setSubmitError("");
     try {
