@@ -504,10 +504,11 @@ function Storefront() {
                 type="text"
                 required
                 value={custName}
-                onChange={(e) => setCustName(e.target.value)}
+                onChange={(e) => { setCustName(e.target.value); if (nameError) setNameError(""); }}
                 maxLength={80}
-                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${nameError ? "border-destructive" : "border-input"}`}
               />
+              {nameError && <p className="mt-1.5 text-xs text-destructive">{nameError}</p>}
             </div>
 
             <div>
@@ -518,12 +519,16 @@ function Storefront() {
                 type="tel"
                 required
                 value={custPhone}
-                onChange={(e) => setCustPhone(e.target.value)}
+                onChange={(e) => { setCustPhone(e.target.value); if (phoneError) setPhoneError(""); }}
                 placeholder="03XX-XXXXXXX"
                 maxLength={30}
-                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${phoneError ? "border-destructive" : "border-input"}`}
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">We'll reach out on WhatsApp to confirm.</p>
+              {phoneError ? (
+                <p className="mt-1.5 text-xs text-destructive">{phoneError}</p>
+              ) : (
+                <p className="mt-1 text-[11px] text-muted-foreground">We'll reach out on WhatsApp to confirm.</p>
+              )}
             </div>
 
             <div>
@@ -533,10 +538,11 @@ function Storefront() {
               <input
                 type="email"
                 value={custEmail}
-                onChange={(e) => setCustEmail(e.target.value)}
+                onChange={(e) => { setCustEmail(e.target.value); if (emailError) setEmailError(""); }}
                 maxLength={120}
-                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${emailError ? "border-destructive" : "border-input"}`}
               />
+              {emailError && <p className="mt-1.5 text-xs text-destructive">{emailError}</p>}
             </div>
 
             <div className="flex justify-between items-baseline pt-3 border-t border-border">
