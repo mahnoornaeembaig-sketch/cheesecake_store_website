@@ -74,6 +74,10 @@ function Storefront() {
   const [submitError, setSubmitError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  const [nameError, setNameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
+
   const minDT = useMemo(minDeliveryDateTime, []);
 
   useEffect(() => {
@@ -133,12 +137,43 @@ function Storefront() {
     setCheckoutOpen(true);
   };
 
+  const pkPhoneRegex = /^(03\d{9}|\+923\d{9})$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateCheckout = () => {
+    let valid = true;
+    if (!custName.trim()) {
+      setNameError("Customer name is required.");
+      valid = false;
+    } else {
+      setNameError("");
+    }
+
+    const phone = custPhone.trim();
+    if (!phone) {
+      setPhoneError("Phone number is required.");
+      valid = false;
+    } else if (!pkPhoneRegex.test(phone)) {
+      setPhoneError("Please enter a valid Pakistani mobile number (e.g., 03XXXXXXXXX).");
+      valid = false;
+    } else {
+      setPhoneError("");
+    }
+
+    const email = custEmail.trim();
+    if (email && !emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      valid = false;
+    } else {
+      setEmailError("");
+    }
+
+    return valid;
+  };
+
   const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!custName.trim() || !custPhone.trim()) {
-      setSubmitError("Name and phone number are required.");
-      return;
-    }
+    if (!validateCheckout()) return;
     setSubmitting(true);
     setSubmitError("");
     try {
@@ -469,10 +504,11 @@ function Storefront() {
                 type="text"
                 required
                 value={custName}
-                onChange={(e) => setCustName(e.target.value)}
+                onChange={(e) => { setCustName(e.target.value); if (nameError) setNameError(""); }}
                 maxLength={80}
-                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${nameError ? "border-destructive" : "border-input"}`}
               />
+              {nameError && <p className="mt-1.5 text-xs text-destructive">{nameError}</p>}
             </div>
 
             <div>
@@ -483,12 +519,16 @@ function Storefront() {
                 type="tel"
                 required
                 value={custPhone}
-                onChange={(e) => setCustPhone(e.target.value)}
+                onChange={(e) => { setCustPhone(e.target.value); if (phoneError) setPhoneError(""); }}
                 placeholder="03XX-XXXXXXX"
                 maxLength={30}
-                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${phoneError ? "border-destructive" : "border-input"}`}
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">We'll reach out on WhatsApp to confirm.</p>
+              {phoneError ? (
+                <p className="mt-1.5 text-xs text-destructive">{phoneError}</p>
+              ) : (
+                <p className="mt-1 text-[11px] text-muted-foreground">We'll reach out on WhatsApp to confirm.</p>
+              )}
             </div>
 
             <div>
@@ -498,10 +538,11 @@ function Storefront() {
               <input
                 type="email"
                 value={custEmail}
-                onChange={(e) => setCustEmail(e.target.value)}
+                onChange={(e) => { setCustEmail(e.target.value); if (emailError) setEmailError(""); }}
                 maxLength={120}
-                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${emailError ? "border-destructive" : "border-input"}`}
               />
+              {emailError && <p className="mt-1.5 text-xs text-destructive">{emailError}</p>}
             </div>
 
             <div className="flex justify-between items-baseline pt-3 border-t border-border">
