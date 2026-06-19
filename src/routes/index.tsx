@@ -37,7 +37,7 @@ type CartItem = Product & {
 const LOCAL_IMAGES: Record<string, string> = {
   "Biscoff Override": biscoffImg.url,
   "Binary Cookie": binaryCookieImg.url,
-  "Pistachio Tablet": pistachioImg.url,
+  "Pistachio Table": pistachioImg.url,
   "Mango.io": mangoImg.url,
   "Strawberry.exe": strawberryImg.url,
 };
