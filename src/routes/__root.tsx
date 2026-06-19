@@ -64,12 +64,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Cheesecake Method — Artisan Cheesecakes in PKR" },
+      { title: "The Cheesecake Method" },
       { name: "description", content: "Premium handcrafted cheesecakes baked with obsession. Order Biscoff, Pistachio Kunafa, Oreo, Mango and Strawberry cheesecakes for delivery." },
       { property: "og:title", content: "The Cheesecake Method" },
-      { property: "og:description", content: "Premium handcrafted cheesecakes baked with obsession." },
+      { property: "og:description", content: "Premium handcrafted cheesecakes baked with obsession. Order Biscoff, Pistachio Kunafa, Oreo, Mango and Strawberry cheesecakes for delivery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "The Cheesecake Method" },
+      { name: "twitter:description", content: "Premium handcrafted cheesecakes baked with obsession. Order Biscoff, Pistachio Kunafa, Oreo, Mango and Strawberry cheesecakes for delivery." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bcdf2cbf-7752-4969-b42c-e82310eb9c0d/id-preview-26541f8e--02bfeda9-cfe2-4aef-b4be-5ad805b3013c.lovable.app-1781885565245.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bcdf2cbf-7752-4969-b42c-e82310eb9c0d/id-preview-26541f8e--02bfeda9-cfe2-4aef-b4be-5ad805b3013c.lovable.app-1781885565245.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
