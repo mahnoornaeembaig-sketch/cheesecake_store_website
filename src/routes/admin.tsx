@@ -21,11 +21,16 @@ export const Route = createFileRoute("/admin")({
 const STATUSES = ["pending", "confirmed", "baking", "ready", "delivered"] as const;
 type Status = (typeof STATUSES)[number];
 
+type Product = {
+  name: string | null;
+};
+
 type OrderItem = {
   id: string;
   product_id: string | null;
   quantity: number;
   unit_price: number | null;
+  products: Product | null;
 };
 
 type Order = {
