@@ -108,7 +108,7 @@ function Dashboard() {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*, order_items(*, products(name))")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error(`Failed to load orders: ${error.message}`);
