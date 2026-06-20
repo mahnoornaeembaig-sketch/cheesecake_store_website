@@ -190,8 +190,8 @@ function Dashboard() {
                 </p>
                 <ul className="space-y-1 text-sm">
                   {o.order_items?.map((it) => (
-                  <li key={it.id} className="flex justify-between">
-                      <span>{it.products?.name || it.product_id || "Item"}</span>
+                    <li key={it.id} className="flex justify-between">
+                      <span>{it.products?.name || "Unknown Product"}</span>
                       <span className="text-muted-foreground">×{it.quantity}</span>
                     </li>
                   ))}
