@@ -224,7 +224,7 @@ function Storefront() {
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
           <div className="min-w-0">
-            <p className="section-eyebrow hidden sm:block">Est. Lahore</p>
+            <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
             <h1 className="truncate font-serif text-xl sm:text-2xl md:text-3xl tracking-wide gold-text">
               The Cheesecake Method
             </h1>
