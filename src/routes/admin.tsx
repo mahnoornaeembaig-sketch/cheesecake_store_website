@@ -21,11 +21,16 @@ export const Route = createFileRoute("/admin")({
 const STATUSES = ["pending", "confirmed", "baking", "ready", "delivered"] as const;
 type Status = (typeof STATUSES)[number];
 
+type Product = {
+  name: string | null;
+};
+
 type OrderItem = {
   id: string;
   product_id: string | null;
   quantity: number;
   unit_price: number | null;
+  products: Product | null;
 };
 
 type Order = {
@@ -103,7 +108,7 @@ function Dashboard() {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*, order_items(*, products(name))")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error(`Failed to load orders: ${error.message}`);
@@ -185,8 +190,8 @@ function Dashboard() {
                 </p>
                 <ul className="space-y-1 text-sm">
                   {o.order_items?.map((it) => (
-                    <li key={it.id} className="flex justify-between">
-                      <span>{it.product_id || "Item"}</span>
+                  <li key={it.id} className="flex justify-between">
+                      <span>{it.products?.name || it.product_id || "Item"}</span>
                       <span className="text-muted-foreground">×{it.quantity}</span>
                     </li>
                   ))}
