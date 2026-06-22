@@ -125,12 +125,21 @@ function Dashboard() {
   async function updateStatus(id: string, status: Status) {
     const prev = orders;
     setOrders((o) => o.map((x) => (x.id === id ? { ...x, status } : x)));
-    const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status })
+      .eq("id", id)
+      .select("id, status");
     if (error) {
       setOrders(prev);
       toast.error(`Update failed: ${error.message}`);
+    } else if (!data || data.length === 0) {
+      setOrders(prev);
+      toast.error(
+        "Update blocked by database permissions (RLS). No rows were changed. Add an UPDATE policy on orders for the anon role."
+      );
     } else {
-      toast.success("Status updated");
+      toast.success(`Status saved: ${data[0].status}`);
     }
   }
 
