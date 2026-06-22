@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
@@ -21,9 +22,7 @@ export const Route = createFileRoute("/admin")({
 const STATUSES = ["pending", "confirmed", "baking", "ready", "delivered"] as const;
 type Status = (typeof STATUSES)[number];
 
-type Product = {
-  name: string | null;
-};
+type Product = { name: string | null };
 
 type OrderItem = {
   id: string;
@@ -46,61 +45,90 @@ type Order = {
   order_items: OrderItem[];
 };
 
-const PIN = "1234";
-
 function AdminPage() {
-  const [authed, setAuthed] = useState(false);
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState("");
+  const [session, setSession] = useState<Session | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    if (sessionStorage.getItem("admin_authed") === "1") setAuthed(true);
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setChecking(false);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+    });
+    return () => sub.subscription.unsubscribe();
   }, []);
 
-  if (!authed) {
+  if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (pin === PIN) {
-              sessionStorage.setItem("admin_authed", "1");
-              setAuthed(true);
-            } else {
-              setError("Incorrect PIN");
-            }
-          }}
-          className="w-full max-w-sm border border-border bg-card p-8 rounded-sm space-y-4"
-        >
-          <h1 className="text-2xl font-serif text-primary">Kitchen Access</h1>
-          <p className="text-sm text-muted-foreground">Enter PIN to continue.</p>
-          <input
-            type="password"
-            value={pin}
-            onChange={(e) => {
-              setPin(e.target.value);
-              if (error) setError("");
-            }}
-            autoFocus
-            className="w-full bg-background border border-input rounded-sm h-11 px-3 text-foreground focus:outline-none focus:border-primary"
-            placeholder="PIN"
-          />
-          {error && <p className="text-xs text-destructive">{error}</p>}
-          <button
-            type="submit"
-            className="w-full h-11 bg-primary text-primary-foreground rounded-sm text-sm font-medium hover:opacity-90"
-          >
-            Unlock
-          </button>
-        </form>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Loading…</p>
       </div>
     );
   }
 
-  return <Dashboard />;
+  if (!session) return <LoginForm />;
+
+  return <Dashboard session={session} />;
 }
 
-function Dashboard() {
+function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setSubmitting(false);
+    if (error) setError(error.message);
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm border border-border bg-card p-8 rounded-sm space-y-4"
+      >
+        <h1 className="text-2xl font-serif text-primary">Kitchen Access</h1>
+        <p className="text-sm text-muted-foreground">Sign in with your admin account.</p>
+        <input
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoFocus
+          className="w-full bg-background border border-input rounded-sm h-11 px-3 text-foreground focus:outline-none focus:border-primary"
+          placeholder="Email"
+        />
+        <input
+          type="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full bg-background border border-input rounded-sm h-11 px-3 text-foreground focus:outline-none focus:border-primary"
+          placeholder="Password"
+        />
+        {error && <p className="text-xs text-destructive">{error}</p>}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full h-11 bg-primary text-primary-foreground rounded-sm text-sm font-medium hover:opacity-90 disabled:opacity-60"
+        >
+          {submitting ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function Dashboard({ session }: { session: Session }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -135,12 +163,14 @@ function Dashboard() {
       toast.error(`Update failed: ${error.message}`);
     } else if (!data || data.length === 0) {
       setOrders(prev);
-      toast.error(
-        "Update blocked by database permissions (RLS). No rows were changed. Add an UPDATE policy on orders for the anon role."
-      );
+      toast.error("Update blocked by RLS. Ensure your admin UPDATE policy is in place.");
     } else {
       toast.success(`Status saved: ${data[0].status}`);
     }
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
   }
 
   return (
@@ -149,13 +179,22 @@ function Dashboard() {
         <div>
           <p className="section-eyebrow">Kitchen</p>
           <h1 className="text-3xl font-serif text-primary">Dashboard</h1>
+          <p className="text-xs text-muted-foreground mt-1">Signed in as {session.user.email}</p>
         </div>
-        <button
-          onClick={load}
-          className="h-10 px-4 border border-border rounded-sm text-sm hover:bg-card"
-        >
-          Refresh
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={load}
+            className="h-10 px-4 border border-border rounded-sm text-sm hover:bg-card"
+          >
+            Refresh
+          </button>
+          <button
+            onClick={signOut}
+            className="h-10 px-4 border border-border rounded-sm text-sm hover:bg-card"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       {loading ? (
@@ -171,9 +210,7 @@ function Dashboard() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-serif text-xl text-primary">
-                    {o.customer_name || "—"}
-                  </h2>
+                  <h2 className="font-serif text-xl text-primary">{o.customer_name || "—"}</h2>
                   <p className="text-sm text-muted-foreground">{o.customer_phone || "—"}</p>
                   <p className="text-sm text-muted-foreground">
                     Deliver: {o.delivery_date || "—"}
