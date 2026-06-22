@@ -19,7 +19,7 @@ export const Route = createFileRoute("/admin")({
   notFoundComponent: () => <div className="p-8">Not found.</div>,
 });
 
-const STATUSES = ["pending", "confirmed", "baking", "ready", "delivered"] as const;
+const STATUSES = ["pending", "confirmed", "baking", "ready", "delivered", "cancelled"] as const;
 type Status = (typeof STATUSES)[number];
 
 type Product = { name: string | null };
@@ -141,7 +141,13 @@ function Dashboard({ session }: { session: Session }) {
     if (error) {
       toast.error(`Failed to load orders: ${error.message}`);
     } else {
-      setOrders((data as Order[]) ?? []);
+      const rows = ((data as Order[]) ?? []).slice().sort((a, b) => {
+        const ac = a.status === "cancelled" ? 1 : 0;
+        const bc = b.status === "cancelled" ? 1 : 0;
+        if (ac !== bc) return ac - bc;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      setOrders(rows);
     }
     setLoading(false);
   }
@@ -152,7 +158,15 @@ function Dashboard({ session }: { session: Session }) {
 
   async function updateStatus(id: string, status: Status) {
     const prev = orders;
-    setOrders((o) => o.map((x) => (x.id === id ? { ...x, status } : x)));
+    setOrders((o) => {
+      const updated = o.map((x) => (x.id === id ? { ...x, status } : x));
+      return updated.slice().sort((a, b) => {
+        const ac = a.status === "cancelled" ? 1 : 0;
+        const bc = b.status === "cancelled" ? 1 : 0;
+        if (ac !== bc) return ac - bc;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+    });
     const { data, error } = await supabase
       .from("orders")
       .update({ status })
@@ -203,10 +217,12 @@ function Dashboard({ session }: { session: Session }) {
         <p className="text-muted-foreground">No orders yet.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {orders.map((o) => (
+          {orders.map((o) => {
+            const isCancelled = o.status === "cancelled";
+            return (
             <article
               key={o.id}
-              className="border border-border bg-card rounded-sm p-5 space-y-4"
+              className={`border border-border bg-card rounded-sm p-5 space-y-4 transition-opacity ${isCancelled ? "opacity-50 line-through" : ""}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -261,7 +277,8 @@ function Dashboard({ session }: { session: Session }) {
                 </select>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
