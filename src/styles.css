@@ -31,48 +31,49 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-gold-deep: var(--gold-deep);
-  --font-serif: "Cormorant Garamond", "Playfair Display", ui-serif, Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", "Merriweather", ui-serif, Georgia, serif;
+  --font-sans: "Montserrat", "Lato", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.5rem;
-  /* Deep marble black */
-  --background: oklch(0.13 0.005 60);
-  --foreground: oklch(0.96 0.01 80);
-  --card: oklch(0.16 0.006 60);
-  --card-foreground: oklch(0.96 0.01 80);
-  --popover: oklch(0.16 0.006 60);
-  --popover-foreground: oklch(0.96 0.01 80);
-  /* Gold */
-  --gold: oklch(0.78 0.12 85);
-  --gold-soft: oklch(0.86 0.08 88);
-  --gold-deep: oklch(0.62 0.13 75);
-  --primary: oklch(0.78 0.12 85);
-  --primary-foreground: oklch(0.13 0.005 60);
-  --secondary: oklch(0.22 0.008 60);
-  --secondary-foreground: oklch(0.96 0.01 80);
-  --muted: oklch(0.22 0.008 60);
-  --muted-foreground: oklch(0.7 0.02 80);
-  --accent: oklch(0.78 0.12 85);
-  --accent-foreground: oklch(0.13 0.005 60);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.98 0.01 80);
-  --border: oklch(0.78 0.12 85 / 25%);
-  --input: oklch(0.78 0.12 85 / 30%);
-  --ring: oklch(0.78 0.12 85);
+  /* Soft sage from logo background */
+  --background: oklch(0.88 0.04 130);
+  /* Dark olive/forest from logo type */
+  --foreground: oklch(0.32 0.05 130);
+  /* Cream card surface */
+  --card: oklch(0.94 0.025 95);
+  --card-foreground: oklch(0.32 0.05 130);
+  --popover: oklch(0.94 0.025 95);
+  --popover-foreground: oklch(0.32 0.05 130);
+  /* Warm golden biscuit from cheesecake */
+  --gold: oklch(0.72 0.13 78);
+  --gold-soft: oklch(0.82 0.1 82);
+  --gold-deep: oklch(0.58 0.13 70);
+  --primary: oklch(0.72 0.13 78);
+  --primary-foreground: oklch(0.25 0.05 130);
+  --secondary: oklch(0.82 0.04 125);
+  --secondary-foreground: oklch(0.32 0.05 130);
+  --muted: oklch(0.84 0.035 125);
+  --muted-foreground: oklch(0.46 0.05 130);
+  --accent: oklch(0.72 0.13 78);
+  --accent-foreground: oklch(0.25 0.05 130);
+  --destructive: oklch(0.52 0.18 28);
+  --destructive-foreground: oklch(0.98 0.01 90);
+  --border: oklch(0.32 0.05 130 / 22%);
+  --input: oklch(0.32 0.05 130 / 28%);
+  --ring: oklch(0.72 0.13 78);
 
   --marble-gradient:
-    radial-gradient(ellipse at 20% 10%, oklch(0.22 0.01 60 / 0.7), transparent 55%),
-    radial-gradient(ellipse at 80% 90%, oklch(0.2 0.01 70 / 0.6), transparent 60%),
-    radial-gradient(ellipse at 50% 50%, oklch(0.17 0.008 60 / 0.4), transparent 70%),
-    linear-gradient(180deg, oklch(0.11 0.005 60), oklch(0.14 0.006 60));
+    radial-gradient(ellipse at 20% 10%, oklch(0.92 0.04 125 / 0.7), transparent 55%),
+    radial-gradient(ellipse at 80% 90%, oklch(0.86 0.05 130 / 0.7), transparent 60%),
+    linear-gradient(180deg, oklch(0.9 0.04 128), oklch(0.86 0.045 130));
   --gold-line: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
-  --shadow-elegant: 0 30px 60px -20px oklch(0 0 0 / 0.6), 0 8px 20px -8px oklch(0 0 0 / 0.5);
-  --shadow-gold: 0 0 0 1px oklch(0.78 0.12 85 / 0.35), 0 20px 50px -20px oklch(0.78 0.12 85 / 0.25);
+  --shadow-elegant: 0 30px 60px -25px oklch(0.32 0.05 130 / 0.35), 0 8px 20px -10px oklch(0.32 0.05 130 / 0.25);
+  --shadow-gold: 0 0 0 1px oklch(0.72 0.13 78 / 0.45), 0 18px 40px -20px oklch(0.72 0.13 78 / 0.45);
 }
 
-.dark { color-scheme: dark; }
+.dark { color-scheme: light; }
 
 @layer base {
   * { border-color: var(--color-border); }
@@ -83,7 +84,7 @@
     background-attachment: fixed;
     min-height: 100vh;
   }
-  h1, h2, h3, h4 { font-family: var(--font-serif); letter-spacing: 0.01em; }
+  h1, h2, h3, h4 { font-family: var(--font-serif); letter-spacing: 0.005em; }
 }
 
 @utility gold-divider {
@@ -92,7 +93,7 @@
 }
 
 @utility gold-text {
-  color: var(--gold);
+  color: var(--gold-deep);
 }
 
 @utility section-eyebrow {
@@ -100,5 +101,6 @@
   font-size: 0.7rem;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-deep);
+  font-weight: 600;
 }
