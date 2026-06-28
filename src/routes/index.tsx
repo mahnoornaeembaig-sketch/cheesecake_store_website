@@ -1,11 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2 } from "lucide-react";
+import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin } from "lucide-react";
 const biscoffImg = { url: "/images/biscoff-override.jpg" };
 const binaryCookieImg = { url: "/images/binary-cookie.jpg" };
 const pistachioImg = { url: "/images/pistachio-tablet.jpg" };
 const mangoImg = { url: "/images/mango-io.jpg" };
 const strawberryImg = { url: "/images/strawberry-exe.jpg" };
+import logoAsset from "@/assets/cheesecake-logo.png.asset.json";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
@@ -23,6 +24,8 @@ type Product = {
   name: string;
   description: string;
   price: number;
+  originalPrice?: number;
+  onSale?: boolean;
   image_url: string;
   category: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
 };
@@ -92,14 +95,19 @@ function Storefront() {
         setLoadError(error.message);
         setProducts([]);
       } else {
-        const rows = (data ?? []).map((r: any) => ({
-          id: String(r.id),
-          name: r.name,
-          description: r.description ?? "",
-          price: Number(r.price) || 0,
-          image_url: LOCAL_IMAGES[r.name] || "",
-          category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
-        }));
+        const rows = (data ?? []).map((r: any) => {
+          const isBinary = r.name === "Binary Cookie";
+          return {
+            id: String(r.id),
+            name: r.name,
+            description: r.description ?? "",
+            price: isBinary ? 2499 : Number(r.price) || 0,
+            originalPrice: isBinary ? 2500 : undefined,
+            onSale: isBinary,
+            image_url: LOCAL_IMAGES[r.name] || "",
+            category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
+          };
+        });
         setProducts(rows);
         setLoadError(null);
       }
@@ -222,25 +230,40 @@ function Storefront() {
     <div className="min-h-screen">
       {/* Navbar */}
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
-          <div className="min-w-0">
-            <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
-            <h1 className="truncate font-serif text-xl sm:text-2xl md:text-3xl tracking-wide gold-text">
-              The Cheesecake Method
-            </h1>
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 flex items-center justify-between gap-4">
+          <Link to="/" className="flex items-center gap-3 min-w-0">
+            <img
+              src={logoAsset.url}
+              alt="The Cheesecake Method"
+              className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-cover shrink-0 border border-primary/40"
+            />
+            <div className="min-w-0 hidden xs:block sm:block">
+              <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
+              <h1 className="truncate font-serif text-lg sm:text-2xl md:text-3xl tracking-wide gold-text">
+                The Cheesecake Method
+              </h1>
+            </div>
+          </Link>
+          <div className="flex items-center gap-3 sm:gap-6">
+            <Link
+              to="/information"
+              className="text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
+            >
+              Info
+            </Link>
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open cart"
+              className="relative shrink-0 inline-flex items-center justify-center h-12 w-12 rounded-full border border-border hover:border-primary transition-colors"
+            >
+              <ShoppingBag className="h-5 w-5 gold-text" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </button>
           </div>
-          <button
-            onClick={() => setOpen(true)}
-            aria-label="Open cart"
-            className="relative shrink-0 inline-flex items-center justify-center h-12 w-12 rounded-full border border-border hover:border-primary transition-colors"
-          >
-            <ShoppingBag className="h-5 w-5 gold-text" />
-            {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
-                {itemCount}
-              </span>
-            )}
-          </button>
         </div>
       </header>
 
@@ -297,14 +320,28 @@ function Storefront() {
                         <span className="section-eyebrow bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
                           {p.category.split(" ")[0]}
                         </span>
-                        <span className="font-serif text-lg gold-text bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
-                          {fmtPKR(p.price)}
-                        </span>
                       </div>
                     </div>
 
                     <div className="p-6 flex flex-col flex-1">
-                      <h4 className="font-serif text-2xl text-foreground">{p.name}</h4>
+                      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                        <h4 className="font-serif text-2xl text-foreground min-w-0 truncate">{p.name}</h4>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {p.onSale && p.originalPrice ? (
+                            <span className="text-xs text-muted-foreground line-through font-serif">
+                              {fmtPKR(p.originalPrice)}
+                            </span>
+                          ) : null}
+                          <span className="font-serif text-lg gold-text whitespace-nowrap">
+                            {fmtPKR(p.price)}
+                          </span>
+                          {p.onSale && (
+                            <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-destructive/15 text-destructive border border-destructive/40">
+                              Sale
+                            </span>
+                          )}
+                        </div>
+                      </div>
                       <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1">
                         {p.description}
                       </p>
@@ -324,8 +361,38 @@ function Storefront() {
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-serif gold-text text-lg">The Cheesecake Method</p>
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <img src={logoAsset.url} alt="" className="h-10 w-10 rounded-full object-cover border border-primary/40" />
+            <p className="font-serif gold-text text-lg">The Cheesecake Method</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://www.instagram.com/thecheesecakemehthod/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border hover:border-primary hover:text-primary transition-colors text-muted-foreground"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/the-cheesecake-mehthod/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border hover:border-primary hover:text-primary transition-colors text-muted-foreground"
+            >
+              <Linkedin className="h-4 w-4" />
+            </a>
+            <a
+              href="mailto:cheesecakemethod@gmail.com"
+              aria-label="Email"
+              className="h-10 w-10 inline-flex items-center justify-center rounded-full border border-border hover:border-primary hover:text-primary transition-colors text-muted-foreground"
+            >
+              <Mail className="h-4 w-4" />
+            </a>
+          </div>
           <p className="text-xs text-muted-foreground tracking-widest uppercase">
             Crafted slowly · Delivered fresh
           </p>
