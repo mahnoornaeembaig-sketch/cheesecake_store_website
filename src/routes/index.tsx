@@ -6,7 +6,7 @@ const binaryCookieImg = { url: "/images/binary-cookie.jpg" };
 const pistachioImg = { url: "/images/pistachio-tablet.jpg" };
 const mangoImg = { url: "/images/mango-io.jpg" };
 const strawberryImg = { url: "/images/strawberry-exe.jpg" };
-import logoAsset from "@/assets/cheesecake-logo.png.asset.json";
+const LOGO_URL = "/1782553124947.png";
 import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
@@ -233,9 +233,9 @@ function Storefront() {
         <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-3 min-w-0">
             <img
-              src={logoAsset.url}
+              src={LOGO_URL}
               alt="The Cheesecake Method"
-              className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-cover shrink-0 border border-primary/40"
+              className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-contain shrink-0 border border-primary/40 bg-card"
             />
             <div className="min-w-0 hidden xs:block sm:block">
               <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
@@ -363,7 +363,7 @@ function Storefront() {
       <footer className="border-t border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img src={logoAsset.url} alt="" className="h-10 w-10 rounded-full object-cover border border-primary/40" />
+            <img src={LOGO_URL} alt="" className="h-10 w-10 rounded-full object-contain border border-primary/40 bg-card" />
             <p className="font-serif gold-text text-lg">The Cheesecake Method</p>
           </div>
           <div className="flex items-center gap-4">
