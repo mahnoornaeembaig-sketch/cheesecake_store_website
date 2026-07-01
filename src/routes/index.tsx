@@ -332,7 +332,7 @@ function Storefront() {
                     </div>
 
                     <div className="p-6 flex flex-col flex-1">
-                      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                      <div className="flex items-baseline justify-between gap-3">
                         <h4 className="font-serif text-2xl text-foreground min-w-0 truncate">{p.name}</h4>
                         <div className="flex items-center gap-2 shrink-0">
                           {p.onSale && p.originalPrice ? (
@@ -340,11 +340,11 @@ function Storefront() {
                               {fmtPKR(p.originalPrice)}
                             </span>
                           ) : null}
-                          <span className="font-serif text-lg gold-text whitespace-nowrap">
+                          <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
                             {fmtPKR(p.price)}
                           </span>
                           {p.onSale && (
-                            <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-destructive/15 text-destructive border border-destructive/40">
+                            <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-primary/15 text-primary border border-primary/40">
                               Sale
                             </span>
                           )}
