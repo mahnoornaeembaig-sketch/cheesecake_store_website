@@ -45,6 +45,14 @@ const LOCAL_IMAGES: Record<string, string> = {
   "Strawberry.exe": strawberryImg.url,
 };
 
+const LOCAL_PRICES: Record<string, { price: number; originalPrice: number }> = {
+  "Binary Cookie": { price: 2499, originalPrice: 2600 },
+  "Pistachio Table": { price: 2999, originalPrice: 3200 },
+  "Biscoff Override": { price: 2850, originalPrice: 2950 },
+  "Mango.io": { price: 2599, originalPrice: 2800 },
+  "Strawberry.exe": { price: 2599, originalPrice: 2800 },
+};
+
 const DELIVERY_FEE = 350;
 
 
