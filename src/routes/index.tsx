@@ -332,9 +332,9 @@ function Storefront() {
                     </div>
 
                     <div className="p-6 flex flex-col flex-1">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <h4 className="font-serif text-2xl text-foreground min-w-0 truncate">{p.name}</h4>
-                        <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex flex-col gap-1">
+                        <h4 className="font-serif text-2xl text-foreground">{p.name}</h4>
+                        <div className="flex items-center gap-2">
                           {p.onSale && p.originalPrice ? (
                             <span className="text-xs text-muted-foreground line-through font-serif">
                               {fmtPKR(p.originalPrice)}
