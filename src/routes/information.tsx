@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Instagram, Linkedin, Mail } from "lucide-react";
 
 const LOGO_URL = "/1782553124947.png";
 
