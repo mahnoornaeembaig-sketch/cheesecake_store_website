@@ -104,14 +104,14 @@ function Storefront() {
         setProducts([]);
       } else {
         const rows = (data ?? []).map((r: any) => {
-          const isBinary = r.name === "Binary Cookie";
+          const local = LOCAL_PRICES[r.name];
           return {
             id: String(r.id),
             name: r.name,
             description: r.description ?? "",
-            price: isBinary ? 2499 : Number(r.price) || 0,
-            originalPrice: isBinary ? 2500 : undefined,
-            onSale: isBinary,
+            price: local ? local.price : Number(r.price) || 0,
+            originalPrice: local ? local.originalPrice : undefined,
+            onSale: !!local,
             image_url: LOCAL_IMAGES[r.name] || "",
             category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
           };
