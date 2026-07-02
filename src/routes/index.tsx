@@ -81,6 +81,7 @@ function Storefront() {
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custEmail, setCustEmail] = useState("");
+  const [custAddress, setCustAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -88,6 +89,7 @@ function Storefront() {
   const [nameError, setNameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [addressError, setAddressError] = useState("");
 
   const minDT = useMemo(minDeliveryDateTime, []);
 
