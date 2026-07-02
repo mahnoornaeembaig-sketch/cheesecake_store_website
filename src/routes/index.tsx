@@ -578,7 +578,7 @@ function Storefront() {
           className="relative w-full max-w-md bg-card border border-border rounded-md overflow-hidden max-h-[85vh] flex flex-col"
           style={{ boxShadow: "var(--shadow-elegant)" }}
         >
-          <div className="flex items-center justify-between px-6 h-20 border-b border-border">
+          <div className="flex items-center justify-between px-6 h-20 border-b border-border shrink-0">
             <div>
               <p className="section-eyebrow">Final Step</p>
               <h3 className="font-serif text-2xl gold-text">Checkout</h3>
@@ -594,7 +594,8 @@ function Storefront() {
             </button>
           </div>
 
-          <form onSubmit={submitOrder} className="p-6 space-y-5">
+          <div className="overflow-y-auto flex-1">
+            <form onSubmit={submitOrder} className="p-6 space-y-5">
             <div>
               <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
                 <User className="h-3.5 w-3.5 gold-text" /> Full Name
