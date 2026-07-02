@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin } from "lucide-react";
+import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin, MapPin, Clock, MessageCircle } from "lucide-react";
 const biscoffImg = { url: "/images/biscoff-override.jpg" };
 const binaryCookieImg = { url: "/images/binary-cookie.jpg" };
 const pistachioImg = { url: "/images/pistachio-tablet.jpg" };
