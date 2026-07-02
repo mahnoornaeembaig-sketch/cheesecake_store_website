@@ -698,6 +698,7 @@ function Storefront() {
               {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Placing…</> : <><Lock className="h-4 w-4" /> Place Order</>}
             </button>
           </form>
+          </div>
         </div>
       </div>
 
