@@ -575,7 +575,7 @@ function Storefront() {
       >
         <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !submitting && setCheckoutOpen(false)} />
         <div
-          className="relative w-full max-w-md bg-card border border-border rounded-md overflow-hidden"
+          className="relative w-full max-w-md bg-card border border-border rounded-md overflow-hidden max-h-[85vh] flex flex-col"
           style={{ boxShadow: "var(--shadow-elegant)" }}
         >
           <div className="flex items-center justify-between px-6 h-20 border-b border-border">
