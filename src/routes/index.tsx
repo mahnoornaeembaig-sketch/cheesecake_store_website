@@ -234,6 +234,7 @@ function Storefront() {
       setCustName("");
       setCustPhone("");
       setCustEmail("");
+      setCustAddress("");
       setConfirmOpen(true);
     } catch (err: any) {
       setSubmitError(err?.message || "Something went wrong. Please try again.");
