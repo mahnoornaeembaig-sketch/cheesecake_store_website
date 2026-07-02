@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin } from "lucide-react";
+import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin, MapPin, Clock, MessageCircle } from "lucide-react";
 const biscoffImg = { url: "/images/biscoff-override.jpg" };
 const binaryCookieImg = { url: "/images/binary-cookie.jpg" };
 const pistachioImg = { url: "/images/pistachio-tablet.jpg" };
@@ -81,6 +81,7 @@ function Storefront() {
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custEmail, setCustEmail] = useState("");
+  const [custAddress, setCustAddress] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -88,6 +89,7 @@ function Storefront() {
   const [nameError, setNameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [addressError, setAddressError] = useState("");
 
   const minDT = useMemo(minDeliveryDateTime, []);
 
@@ -176,6 +178,13 @@ function Storefront() {
       setPhoneError("");
     }
 
+    if (!custAddress.trim() || custAddress.trim().length < 10) {
+      setAddressError("Please enter your complete delivery address (min 10 characters).");
+      valid = false;
+    } else {
+      setAddressError("");
+    }
+
     const email = custEmail.trim();
     if (email && !emailRegex.test(email)) {
       setEmailError("Please enter a valid email address.");
@@ -199,6 +208,7 @@ function Storefront() {
           customer_name: custName.trim(),
           customer_phone: custPhone.trim(),
           customer_email: custEmail.trim() || null,
+          delivery_address: custAddress.trim(),
           delivery_date: deliveryDate,
           custom_message: customMessage || null,
           total_amount: total,
@@ -224,6 +234,7 @@ function Storefront() {
       setCustName("");
       setCustPhone("");
       setCustEmail("");
+      setCustAddress("");
       setConfirmOpen(true);
     } catch (err: any) {
       setSubmitError(err?.message || "Something went wrong. Please try again.");
@@ -621,6 +632,22 @@ function Storefront() {
 
             <div>
               <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                <MapPin className="h-3.5 w-3.5 gold-text" /> Delivery Address
+              </label>
+              <textarea
+                required
+                rows={3}
+                value={custAddress}
+                onChange={(e) => { setCustAddress(e.target.value); if (addressError) setAddressError(""); }}
+                placeholder="Enter your complete address within Karachi."
+                maxLength={400}
+                className={`w-full bg-background border rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none ${addressError ? "border-destructive" : "border-input"}`}
+              />
+              {addressError && <p className="mt-1.5 text-xs text-destructive">{addressError}</p>}
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
                 <Mail className="h-3.5 w-3.5 gold-text" /> Email <span className="opacity-60 normal-case tracking-normal">(optional)</span>
               </label>
               <input
@@ -631,6 +658,27 @@ function Storefront() {
                 className={`w-full bg-background border rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary ${emailError ? "border-destructive" : "border-input"}`}
               />
               {emailError && <p className="mt-1.5 text-xs text-destructive">{emailError}</p>}
+            </div>
+
+            <div className="rounded-md border border-primary/30 bg-secondary/60 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <MapPin className="h-4 w-4 gold-text mt-0.5 shrink-0" />
+                <p className="text-xs leading-relaxed text-foreground">
+                  <span className="font-semibold">Delivery Area:</span> <span className="text-muted-foreground">Available across all of Karachi.</span>
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <Clock className="h-4 w-4 gold-text mt-0.5 shrink-0" />
+                <p className="text-xs leading-relaxed text-foreground">
+                  <span className="font-semibold">Fulfillment Time:</span> <span className="text-muted-foreground">Limited-batch, pre-order model. Orders are typically processed within 24–48 hours.</span>
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <MessageCircle className="h-4 w-4 gold-text mt-0.5 shrink-0" />
+                <p className="text-xs leading-relaxed text-foreground">
+                  <span className="font-semibold">Next Steps:</span> <span className="text-muted-foreground">You'll receive a direct WhatsApp message from us to confirm your delivery time and exact location.</span>
+                </p>
+              </div>
             </div>
 
             <div className="flex justify-between items-baseline pt-3 border-t border-border">
