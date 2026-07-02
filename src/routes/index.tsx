@@ -642,7 +642,7 @@ function Storefront() {
                 onChange={(e) => { setCustAddress(e.target.value); if (addressError) setAddressError(""); }}
                 placeholder="Enter your complete address within Karachi."
                 maxLength={400}
-                className={`w-full bg-background border rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none ${addressError ? "border-destructive" : "border-input"}`}
+                className={`w-full bg-background border rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none max-h-24 ${addressError ? "border-destructive" : "border-input"}`}
               />
               {addressError && <p className="mt-1.5 text-xs text-destructive">{addressError}</p>}
             </div>
@@ -661,22 +661,22 @@ function Storefront() {
               {emailError && <p className="mt-1.5 text-xs text-destructive">{emailError}</p>}
             </div>
 
-            <div className="rounded-md border border-primary/30 bg-secondary/60 p-4 space-y-3">
+            <div className="rounded-md border border-primary/30 bg-secondary/60 p-3 space-y-2">
               <div className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 gold-text mt-0.5 shrink-0" />
-                <p className="text-xs leading-relaxed text-foreground">
+                <p className="text-sm leading-relaxed text-foreground">
                   <span className="font-semibold">Delivery Area:</span> <span className="text-muted-foreground">Available across all of Karachi.</span>
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <Clock className="h-4 w-4 gold-text mt-0.5 shrink-0" />
-                <p className="text-xs leading-relaxed text-foreground">
+                <p className="text-sm leading-relaxed text-foreground">
                   <span className="font-semibold">Fulfillment Time:</span> <span className="text-muted-foreground">Limited-batch, pre-order model. Orders are typically processed within 24–48 hours.</span>
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <MessageCircle className="h-4 w-4 gold-text mt-0.5 shrink-0" />
-                <p className="text-xs leading-relaxed text-foreground">
+                <p className="text-sm leading-relaxed text-foreground">
                   <span className="font-semibold">Next Steps:</span> <span className="text-muted-foreground">You'll receive a direct WhatsApp message from us to confirm your delivery time and exact location.</span>
                 </p>
               </div>
