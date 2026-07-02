@@ -178,6 +178,13 @@ function Storefront() {
       setPhoneError("");
     }
 
+    if (!custAddress.trim() || custAddress.trim().length < 10) {
+      setAddressError("Please enter your complete delivery address (min 10 characters).");
+      valid = false;
+    } else {
+      setAddressError("");
+    }
+
     const email = custEmail.trim();
     if (email && !emailRegex.test(email)) {
       setEmailError("Please enter a valid email address.");
