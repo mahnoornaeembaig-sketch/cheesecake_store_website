@@ -208,6 +208,7 @@ function Storefront() {
           customer_name: custName.trim(),
           customer_phone: custPhone.trim(),
           customer_email: custEmail.trim() || null,
+          delivery_address: custAddress.trim(),
           delivery_date: deliveryDate,
           custom_message: customMessage || null,
           total_amount: total,
