@@ -104,3 +104,19 @@
   color: var(--gold-deep);
   font-weight: 600;
 }
+
+@utility btn-cta {
+  background-color: var(--foreground);
+  color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background-color 150ms ease, transform 150ms ease;
+  &:hover {
+    background-color: oklch(0.28 0.05 130);
+  }
+  &:active {
+    background-color: oklch(0.25 0.05 130);
+    transform: scale(0.98);
+  }
+}

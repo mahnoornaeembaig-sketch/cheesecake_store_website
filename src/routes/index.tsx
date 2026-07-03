@@ -287,7 +287,7 @@ function Storefront() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 pt-16 sm:pt-24 pb-12 text-center">
+      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 sm:py-24 text-center">
         <p className="section-eyebrow">A Study in Cheesecake</p>
         <h2 className="mt-4 font-serif text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-foreground">
           Baked with <span className="italic gold-text">obsession.</span>
@@ -366,7 +366,7 @@ function Storefront() {
                       </p>
                       <button
                         onClick={() => addToCart(p)}
-                        className="mt-6 w-full inline-flex items-center justify-center gap-2 h-12 rounded-sm border border-primary/60 text-primary hover:bg-primary hover:text-primary-foreground transition-colors text-sm tracking-[0.25em] uppercase"
+                        className="mt-6 w-full inline-flex items-center justify-center gap-2 h-12 rounded-sm btn-cta text-sm"
                       >
                         <Plus className="h-4 w-4" /> Add to Cart
                       </button>
@@ -558,7 +558,7 @@ function Storefront() {
 
               <button
                 onClick={validateAndCheckout}
-                className="w-full h-14 inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-sm text-sm tracking-[0.3em] uppercase font-medium hover:opacity-90 transition-opacity"
+                className="w-full h-14 inline-flex items-center justify-center gap-2 rounded-sm btn-cta text-sm"
                 style={{ boxShadow: "var(--shadow-gold)" }}
               >
                 <Lock className="h-4 w-4" /> Proceed to Secure Checkout
@@ -594,8 +594,8 @@ function Storefront() {
             </button>
           </div>
 
-          <div className="overflow-y-auto flex-1">
-            <form onSubmit={submitOrder} className="p-6 space-y-5">
+          <form onSubmit={submitOrder} className="flex flex-col flex-1 min-h-0">
+            <div className="overflow-y-auto flex-1 py-4 px-6 space-y-5">
             <div>
               <label className="flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
                 <User className="h-3.5 w-3.5 gold-text" /> Full Name
@@ -681,24 +681,26 @@ function Storefront() {
                 </p>
               </div>
             </div>
-
-            <div className="flex justify-between items-baseline pt-3 border-t border-border">
-              <span className="font-serif text-lg text-foreground">Total</span>
-              <span className="font-serif text-2xl gold-text">{fmtPKR(total)}</span>
             </div>
 
-            {submitError && <p className="text-xs text-destructive">{submitError}</p>}
+            <div className="shrink-0 border-t border-border p-6 space-y-4 bg-card/95 backdrop-blur">
+              <div className="flex justify-between items-baseline">
+                <span className="font-serif text-lg text-foreground">Total</span>
+                <span className="font-serif text-2xl gold-text">{fmtPKR(total)}</span>
+              </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full h-14 inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-sm text-sm tracking-[0.3em] uppercase font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
-              style={{ boxShadow: "var(--shadow-gold)" }}
-            >
-              {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Placing…</> : <><Lock className="h-4 w-4" /> Place Order</>}
-            </button>
+              {submitError && <p className="text-xs text-destructive">{submitError}</p>}
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full h-14 inline-flex items-center justify-center gap-2 rounded-sm btn-cta text-sm disabled:opacity-60"
+                style={{ boxShadow: "var(--shadow-gold)" }}
+              >
+                {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Placing…</> : <><Lock className="h-4 w-4" /> Place Order</>}
+              </button>
+            </div>
           </form>
-          </div>
         </div>
       </div>
 
@@ -723,7 +725,7 @@ function Storefront() {
           </p>
           <button
             onClick={() => setConfirmOpen(false)}
-            className="mt-8 w-full h-12 inline-flex items-center justify-center bg-primary text-primary-foreground rounded-sm text-xs tracking-[0.3em] uppercase font-medium hover:opacity-90 transition-opacity"
+            className="mt-8 w-full h-12 inline-flex items-center justify-center rounded-sm btn-cta text-xs"
             style={{ boxShadow: "var(--shadow-gold)" }}
           >
             Close
