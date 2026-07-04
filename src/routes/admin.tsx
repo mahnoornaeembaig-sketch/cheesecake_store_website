@@ -245,6 +245,7 @@ function Dashboard({ session }: { session: Session }) {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {orders.map((o) => {
             const isCancelled = o.status === "cancelled";
+            const notifyUrl = buildWhatsAppUrl(o.customer_name, o.customer_phone, o.status);
             return (
             <article
               key={o.id}
