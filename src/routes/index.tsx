@@ -8,6 +8,7 @@ const mangoImg = { url: "/images/mango-io.jpg" };
 const strawberryImg = { url: "/images/strawberry-exe.jpg" };
 const LOGO_URL = "/1782553124947.png";
 import { supabase } from "@/lib/supabase";
+import { ReviewsSection } from "@/components/reviews-section";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -378,6 +379,8 @@ function Storefront() {
           );
         })}
       </main>
+
+      <ReviewsSection />
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
