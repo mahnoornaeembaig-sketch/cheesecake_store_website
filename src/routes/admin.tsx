@@ -291,17 +291,30 @@ function Dashboard({ session }: { session: Session }) {
                 <span className="text-sm text-muted-foreground">
                   Total: {o.total_amount ?? "—"}
                 </span>
-                <select
-                  value={(o.status as Status) || "pending"}
-                  onChange={(e) => updateStatus(o.id, e.target.value as Status)}
-                  className="bg-background border border-input rounded-sm h-9 px-2 text-sm focus:outline-none focus:border-primary"
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  {notifyUrl && (
+                    <a
+                      href={notifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 h-9 px-3 border border-border rounded-sm text-sm hover:bg-card transition-colors"
+                    >
+                      <MessageCircle className="size-4" />
+                      Notify
+                    </a>
+                  )}
+                  <select
+                    value={(o.status as Status) || "pending"}
+                    onChange={(e) => updateStatus(o.id, e.target.value as Status)}
+                    className="bg-background border border-input rounded-sm h-9 px-2 text-sm focus:outline-none focus:border-primary"
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </article>
             );
