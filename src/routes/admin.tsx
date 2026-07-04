@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
