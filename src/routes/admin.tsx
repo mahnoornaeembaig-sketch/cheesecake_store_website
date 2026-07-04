@@ -46,6 +46,31 @@ type Order = {
   order_items: OrderItem[];
 };
 
+function formatPhoneForWhatsApp(phone: string | null): string | null {
+  if (!phone) return null;
+  let digits = phone.replace(/\D/g, "");
+  digits = digits.replace(/^0+/, "");
+  if (!digits.startsWith("92")) {
+    digits = "92" + digits;
+  }
+  return digits;
+}
+
+function buildWhatsAppUrl(
+  name: string | null,
+  phone: string | null,
+  status: string | null
+): string | null {
+  const formattedPhone = formatPhoneForWhatsApp(phone);
+  if (!formattedPhone) return null;
+  const displayStatus = status
+    ? status.charAt(0).toUpperCase() + status.slice(1)
+    : "Updated";
+  const message = `Hello ${name || "there"}! Update from The Cheesecake Method: Your order is now ${displayStatus}! 🍰`;
+  return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+}
+
+
 function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [checking, setChecking] = useState(true);
