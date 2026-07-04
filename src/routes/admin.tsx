@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -44,6 +45,31 @@ type Order = {
   status: string | null;
   order_items: OrderItem[];
 };
+
+function formatPhoneForWhatsApp(phone: string | null): string | null {
+  if (!phone) return null;
+  let digits = phone.replace(/\D/g, "");
+  digits = digits.replace(/^0+/, "");
+  if (!digits.startsWith("92")) {
+    digits = "92" + digits;
+  }
+  return digits;
+}
+
+function buildWhatsAppUrl(
+  name: string | null,
+  phone: string | null,
+  status: string | null
+): string | null {
+  const formattedPhone = formatPhoneForWhatsApp(phone);
+  if (!formattedPhone) return null;
+  const displayStatus = status
+    ? status.charAt(0).toUpperCase() + status.slice(1)
+    : "Updated";
+  const message = `Hello ${name || "there"}! Update from The Cheesecake Method: Your order is now ${displayStatus}! 🍰`;
+  return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+}
+
 
 function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
@@ -219,6 +245,7 @@ function Dashboard({ session }: { session: Session }) {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {orders.map((o) => {
             const isCancelled = o.status === "cancelled";
+            const notifyUrl = buildWhatsAppUrl(o.customer_name, o.customer_phone, o.status);
             return (
             <article
               key={o.id}
@@ -264,17 +291,30 @@ function Dashboard({ session }: { session: Session }) {
                 <span className="text-sm text-muted-foreground">
                   Total: {o.total_amount ?? "—"}
                 </span>
-                <select
-                  value={(o.status as Status) || "pending"}
-                  onChange={(e) => updateStatus(o.id, e.target.value as Status)}
-                  className="bg-background border border-input rounded-sm h-9 px-2 text-sm focus:outline-none focus:border-primary"
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  {notifyUrl && (
+                    <a
+                      href={notifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 h-9 px-3 border border-border rounded-sm text-sm hover:bg-card transition-colors"
+                    >
+                      <MessageCircle className="size-4" />
+                      Notify
+                    </a>
+                  )}
+                  <select
+                    value={(o.status as Status) || "pending"}
+                    onChange={(e) => updateStatus(o.id, e.target.value as Status)}
+                    className="bg-background border border-input rounded-sm h-9 px-2 text-sm focus:outline-none focus:border-primary"
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </article>
             );
