@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Star, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 type Review = {
   name: string;
