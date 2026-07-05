@@ -258,7 +258,7 @@ function Storefront() {
               className="h-10 w-10 sm:h-14 sm:w-14 rounded-full object-contain shrink-0 border border-primary/40 bg-card"
             />
             <div className="min-w-0">
-              <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
+              <p className="section-eyebrow block text-[10px] sm:text-xs">EST. KARACHI</p>
               <h1 className="truncate font-serif text-base sm:text-2xl md:text-3xl tracking-wide gold-text">
                 The Cheesecake Method
               </h1>
@@ -267,13 +267,13 @@ function Storefront() {
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-              className="hidden sm:inline-flex items-center justify-center h-10 px-5 rounded-sm btn-cta text-xs"
+              className="inline-flex items-center justify-center h-7 sm:h-10 px-2 sm:px-5 rounded-sm btn-cta text-[10px] sm:text-xs"
             >
               Order Now
             </button>
             <Link
               to="/information"
-              className="hidden sm:inline-flex text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
+              className="inline-flex text-[10px] sm:text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
             >
               Info
             </Link>
