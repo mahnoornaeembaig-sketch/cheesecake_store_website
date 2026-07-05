@@ -255,11 +255,11 @@ function Storefront() {
             <img
               src={LOGO_URL}
               alt="The Cheesecake Method"
-              className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-contain shrink-0 border border-primary/40 bg-card"
+              className="h-10 w-10 sm:h-14 sm:w-14 rounded-full object-contain shrink-0 border border-primary/40 bg-card"
             />
-            <div className="min-w-0 hidden xs:block sm:block">
+            <div className="min-w-0">
               <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
-              <h1 className="truncate font-serif text-lg sm:text-2xl md:text-3xl tracking-wide gold-text">
+              <h1 className="truncate font-serif text-base sm:text-2xl md:text-3xl tracking-wide gold-text">
                 The Cheesecake Method
               </h1>
             </div>
