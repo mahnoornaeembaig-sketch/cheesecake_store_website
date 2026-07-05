@@ -273,7 +273,7 @@ function Storefront() {
             </button>
             <Link
               to="/information"
-              className="hidden sm:inline-flex text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
+              className="inline-flex text-[10px] sm:text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
             >
               Info
             </Link>
