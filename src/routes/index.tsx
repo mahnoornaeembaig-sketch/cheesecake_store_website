@@ -255,26 +255,32 @@ function Storefront() {
             <img
               src={LOGO_URL}
               alt="The Cheesecake Method"
-              className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-contain shrink-0 border border-primary/40 bg-card"
+              className="h-10 w-10 sm:h-14 sm:w-14 rounded-full object-contain shrink-0 border border-primary/40 bg-card"
             />
-            <div className="min-w-0 hidden xs:block sm:block">
+            <div className="min-w-0">
               <p className="section-eyebrow hidden sm:block">Est. Karachi</p>
-              <h1 className="truncate font-serif text-lg sm:text-2xl md:text-3xl tracking-wide gold-text">
+              <h1 className="truncate font-serif text-base sm:text-2xl md:text-3xl tracking-wide gold-text">
                 The Cheesecake Method
               </h1>
             </div>
           </Link>
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hidden sm:inline-flex items-center justify-center h-10 px-5 rounded-sm btn-cta text-xs"
+            >
+              Order Now
+            </button>
             <Link
               to="/information"
-              className="text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
+              className="hidden sm:inline-flex text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
             >
               Info
             </Link>
             <button
               onClick={() => setOpen(true)}
               aria-label="Open cart"
-              className="relative shrink-0 inline-flex items-center justify-center h-12 w-12 rounded-full border border-border hover:border-primary transition-colors"
+              className="relative shrink-0 inline-flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-border hover:border-primary transition-colors"
             >
               <ShoppingBag className="h-5 w-5 gold-text" />
               {itemCount > 0 && (
@@ -288,21 +294,27 @@ function Storefront() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 sm:py-24 text-center">
-        <p className="section-eyebrow">A Study in Cheesecake</p>
-        <h2 className="mt-4 font-serif text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-foreground">
-          Baked with <span className="italic gold-text">obsession.</span>
-          <br />
-          Served with method.
-        </h2>
-        <p className="mt-6 max-w-xl mx-auto text-muted-foreground text-base sm:text-lg">
-          Hand-crafted in small batches. Every cheesecake is a quiet ritual of cream, fire, and patience.
-        </p>
-        <div className="mt-10 mx-auto max-w-xs gold-divider" />
+      <section
+        className="relative bg-cover bg-center bg-no-repeat overflow-hidden"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1567327613485-fbc7bf196198?auto=format&fit=crop&w=1600&q=80')" }}
+      >
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-32 text-center">
+          <p className="section-eyebrow hero-animate hero-delay-1" style={{ color: 'var(--gold-soft)' }}>A Study in Cheesecake</p>
+          <h2 className="mt-4 font-serif text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-white hero-animate hero-delay-2">
+            Baked with <span className="italic" style={{ color: 'var(--gold-soft)' }}>obsession.</span>
+            <br />
+            Served with method.
+          </h2>
+          <p className="mt-6 max-w-xl mx-auto text-white/80 text-base sm:text-lg hero-animate hero-delay-3">
+            Hand-crafted in small batches. Every cheesecake is a quiet ritual of cream, fire, and patience.
+          </p>
+          <div className="mt-10 mx-auto max-w-xs hero-animate hero-delay-4" style={{ height: '1px', background: 'linear-gradient(90deg, transparent, var(--gold-soft) 50%, transparent)' }} />
+        </div>
       </section>
 
       {/* Menu */}
-      <main className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
+      <main id="menu" className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
         {loading && (
           <p className="text-center text-muted-foreground mt-16 text-sm tracking-[0.3em] uppercase">Loading menu…</p>
         )}
