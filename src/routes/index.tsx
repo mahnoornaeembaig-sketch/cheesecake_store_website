@@ -264,17 +264,23 @@ function Storefront() {
               </h1>
             </div>
           </Link>
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
+              className="hidden sm:inline-flex items-center justify-center h-10 px-5 rounded-sm btn-cta text-xs"
+            >
+              Order Now
+            </button>
             <Link
               to="/information"
-              className="text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
+              className="hidden sm:inline-flex text-xs tracking-[0.25em] uppercase text-muted-foreground hover:text-primary transition-colors"
             >
               Info
             </Link>
             <button
               onClick={() => setOpen(true)}
               aria-label="Open cart"
-              className="relative shrink-0 inline-flex items-center justify-center h-12 w-12 rounded-full border border-border hover:border-primary transition-colors"
+              className="relative shrink-0 inline-flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-border hover:border-primary transition-colors"
             >
               <ShoppingBag className="h-5 w-5 gold-text" />
               {itemCount > 0 && (
