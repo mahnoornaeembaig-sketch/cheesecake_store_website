@@ -314,7 +314,7 @@ function Storefront() {
       </section>
 
       {/* Menu */}
-      <main className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
+      <main id="menu" className="mx-auto max-w-7xl px-5 sm:px-8 pb-32">
         {loading && (
           <p className="text-center text-muted-foreground mt-16 text-sm tracking-[0.3em] uppercase">Loading menu…</p>
         )}
