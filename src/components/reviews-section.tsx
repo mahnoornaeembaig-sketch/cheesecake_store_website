@@ -108,7 +108,7 @@ export function ReviewsSection() {
       <div className="flex items-center gap-6 mb-10">
         <div className="flex-1 gold-divider" />
         <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
-          KIND WORDS
+          Testimonials
         </h3>
         <div className="flex-1 gold-divider" />
       </div>
