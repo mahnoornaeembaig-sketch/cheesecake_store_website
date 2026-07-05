@@ -294,17 +294,23 @@ function Storefront() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 sm:py-24 text-center">
-        <p className="section-eyebrow">A Study in Cheesecake</p>
-        <h2 className="mt-4 font-serif text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-foreground">
-          Baked with <span className="italic gold-text">obsession.</span>
-          <br />
-          Served with method.
-        </h2>
-        <p className="mt-6 max-w-xl mx-auto text-muted-foreground text-base sm:text-lg">
-          Hand-crafted in small batches. Every cheesecake is a quiet ritual of cream, fire, and patience.
-        </p>
-        <div className="mt-10 mx-auto max-w-xs gold-divider" />
+      <section
+        className="relative bg-cover bg-center bg-no-repeat overflow-hidden"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1567327613485-fbc7bf196198?auto=format&fit=crop&w=1600&q=80')" }}
+      >
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-32 text-center">
+          <p className="section-eyebrow hero-animate hero-delay-1" style={{ color: 'var(--gold-soft)' }}>A Study in Cheesecake</p>
+          <h2 className="mt-4 font-serif text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-white hero-animate hero-delay-2">
+            Baked with <span className="italic" style={{ color: 'var(--gold-soft)' }}>obsession.</span>
+            <br />
+            Served with method.
+          </h2>
+          <p className="mt-6 max-w-xl mx-auto text-white/80 text-base sm:text-lg hero-animate hero-delay-3">
+            Hand-crafted in small batches. Every cheesecake is a quiet ritual of cream, fire, and patience.
+          </p>
+          <div className="mt-10 mx-auto max-w-xs hero-animate hero-delay-4" style={{ height: '1px', background: 'linear-gradient(90deg, transparent, var(--gold-soft) 50%, transparent)' }} />
+        </div>
       </section>
 
       {/* Menu */}
