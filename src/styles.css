@@ -33,6 +33,9 @@
   --color-gold-deep: var(--gold-deep);
   --font-serif: "Playfair Display", "Merriweather", ui-serif, Georgia, serif;
   --font-sans: "Montserrat", "Lato", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Abril Fatface", "Playfair Display", ui-serif, Georgia, serif;
+  --color-hero-bg: var(--hero-bg);
+  --color-hero-text: var(--hero-text);
 }
 
 :root {
@@ -71,6 +74,9 @@
   --gold-line: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
   --shadow-elegant: 0 30px 60px -25px oklch(0.32 0.05 130 / 0.35), 0 8px 20px -10px oklch(0.32 0.05 130 / 0.25);
   --shadow-gold: 0 0 0 1px oklch(0.72 0.13 78 / 0.45), 0 18px 40px -20px oklch(0.72 0.13 78 / 0.45);
+
+  --hero-bg: oklch(0.94 0.025 80);
+  --hero-text: oklch(0.30 0.06 45);
 }
 
 .dark { color-scheme: light; }
