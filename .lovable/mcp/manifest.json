@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "cheesecake-method-mcp",
+      "version": "0.1.0",
+      "title": "The Cheesecake Method"
+    },
+    "tools": [
+      {
+        "name": "list_menu",
+        "title": "List cheesecake menu",
+        "description": "List all available cheesecakes on The Cheesecake Method storefront, including name, category, price, and description.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "category": {
+              "description": "Optional category filter (e.g. 'Signature', 'Seasonal').",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_reviews",
+        "title": "List customer reviews",
+        "description": "List recent customer reviews for The Cheesecake Method.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Maximum number of reviews to return (default 10).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "submit_review",
+        "title": "Submit a customer review",
+        "description": "Submit a new customer review for a cheesecake. Rating must be between 1 and 5.",
+        "annotations": {
+          "readOnlyHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Reviewer's display name."
+            },
+            "product_tag": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Cheesecake name/tag being reviewed (e.g. 'Biscoff Override')."
+            },
+            "rating": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Star rating from 1 to 5."
+            },
+            "review_text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "The review body."
+            }
+          },
+          "required": [
+            "name",
+            "product_tag",
+            "rating",
+            "review_text"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
