@@ -112,43 +112,48 @@
 }
 
 @keyframes hero-fade-up {
-  0% { opacity: 0; transform: translateY(24px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @utility hero-animate {
   opacity: 0;
-  animation: hero-fade-up 0.8s ease-out forwards;
+  will-change: opacity, transform;
+  animation: hero-fade-up 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @utility hero-delay-1 {
-  animation-delay: 0.15s;
+  animation-delay: 0.1s;
 }
 
 @utility hero-delay-2 {
-  animation-delay: 0.35s;
+  animation-delay: 0.3s;
 }
 
 @utility hero-delay-3 {
-  animation-delay: 0.55s;
-}
-
-@utility hero-delay-4 {
-  animation-delay: 0.75s;
+  animation-delay: 0.5s;
 }
 
 @utility btn-cta {
-  background-color: var(--foreground);
-  color: #ffffff;
+  background-color: oklch(0.35 0.08 45);
+  color: oklch(0.94 0.025 80);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  transition: background-color 150ms ease, transform 150ms ease;
+  border-radius: 9999px;
+  transition: background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
   &:hover {
-    background-color: oklch(0.28 0.05 130);
+    background-color: oklch(0.30 0.08 45);
+    box-shadow: 0 8px 24px -8px oklch(0.35 0.08 45 / 0.45);
   }
   &:active {
-    background-color: oklch(0.25 0.05 130);
+    background-color: oklch(0.27 0.07 45);
     transform: scale(0.98);
   }
 }

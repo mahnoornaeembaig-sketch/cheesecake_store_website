@@ -267,7 +267,7 @@ function Storefront() {
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center justify-center whitespace-nowrap h-7 sm:h-10 px-2 py-1.5 sm:px-5 sm:py-2 rounded-sm btn-cta text-[10px] sm:text-xs"
+              className="inline-flex items-center justify-center whitespace-nowrap h-7 sm:h-10 px-2 py-1.5 sm:px-5 sm:py-2 rounded-full btn-cta text-[10px] sm:text-xs"
             >
               Order Now
             </button>
@@ -307,7 +307,10 @@ function Storefront() {
           <p className="mt-6 max-w-2xl mx-auto text-hero-text/80 text-base sm:text-lg font-sans hero-animate hero-delay-3">
             No guesswork. Just small batches, precise measurements, and a perfectly engineered dessert.
           </p>
-          <div className="mt-10 mx-auto max-w-xs hero-animate hero-delay-4" style={{ height: '1px', background: 'linear-gradient(90deg, transparent, var(--hero-text) 50%, transparent)' }} />
+          <div
+            className="mt-10 mx-auto max-w-xs rounded-full"
+            style={{ height: "1px", background: "linear-gradient(90deg, transparent, var(--hero-text) 50%, transparent)" }}
+          />
         </div>
       </section>
 
