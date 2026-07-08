@@ -101,7 +101,6 @@ export function ReviewsSection() {
         if (error) throw error;
 
         if (data && data.length > 0) {
-          // Map Supabase DB columns to our React component's Review type
           const formattedReviews = data.map((item) => ({
             name: item.name,
             tag: item.product_tag,
@@ -109,12 +108,10 @@ export function ReviewsSection() {
             text: item.review_text,
           }));
 
-          // Combine the real DB reviews (first) with the hardcoded seeds (last)
           setReviews([...formattedReviews, ...SEED_REVIEWS]);
         }
       } catch (err) {
         console.error("Failed to load reviews from Supabase:", err);
-        // We leave the SEED_REVIEWS in place as a graceful fallback
       }
     };
 
@@ -142,13 +139,12 @@ export function ReviewsSection() {
     setSubmitting(true);
 
     try {
-      // Insert into DB and select the new row back
       const { data, error } = await supabase
         .from("reviews")
         .insert({
           name: cleanName,
           product_tag: product,
-          rating,
+          rating: rating,
           review_text: cleanText,
           user_id: session.user.id,
         })
@@ -157,7 +153,6 @@ export function ReviewsSection() {
 
       if (error) throw error;
 
-      // Update the UI immediately with the verified DB data
       const newReview: Review = {
         name: data.name,
         tag: data.product_tag,
@@ -165,18 +160,18 @@ export function ReviewsSection() {
         text: data.review_text,
       };
 
-      // Ensure the new review goes at the very top of the list
       setReviews((r) => [newReview, ...r]);
       toast.success("Thanks for the love! Your review has been submitted.");
 
-      // Reset form fields
       setName("");
       setText("");
       setRating(5);
       setProduct(PRODUCT_OPTIONS[0]);
     } catch (err: any) {
-      console.warn("Review insert error:", err?.message);
-      toast.error("Failed to submit review. Please try again.");
+      console.error("Full review insert error:", err);
+      if (err?.details) console.error("Details:", err.details);
+      if (err?.hint) console.error("Hint:", err.hint);
+      toast.error(`Failed: ${err?.message || "Unknown error"}`);
     } finally {
       setSubmitting(false);
     }
