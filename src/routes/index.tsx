@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin, MapPin, Clock, MessageCircle } from "lucide-react";
+import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin, MapPin, Clock, MessageCircle, Sparkles } from "lucide-react";
 const biscoffImg = { url: "/images/biscoff-override.jpg" };
 const binaryCookieImg = { url: "/images/binary-cookie.jpg" };
 const pistachioImg = { url: "/images/pistachio-tablet.jpg" };
@@ -267,7 +267,7 @@ function Storefront() {
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center justify-center whitespace-nowrap h-7 sm:h-10 px-2 py-1.5 sm:px-5 sm:py-2 rounded-sm btn-cta text-[10px] sm:text-xs"
+              className="inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 sm:px-4 sm:py-2 rounded-full btn-cta text-[10px] sm:text-xs"
             >
               Order Now
             </button>
@@ -294,20 +294,57 @@ function Storefront() {
       </header>
 
       {/* Hero */}
-      <section className="relative bg-hero-bg overflow-hidden">
-        <div className="relative mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-32 text-center">
-          <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.3em] text-hero-text font-sans hero-animate hero-delay-1">
-            Engineered for your sweet tooth.
-          </p>
-          <h2 className="mt-4 sm:mt-6 font-display text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-hero-text hero-animate hero-delay-2">
-            Baked with obsession.
-            <br />
-            Served with method.
-          </h2>
-          <p className="mt-6 max-w-2xl mx-auto text-hero-text/80 text-base sm:text-lg font-sans hero-animate hero-delay-3">
-            No guesswork. Just small batches, precise measurements, and a perfectly engineered dessert.
-          </p>
-          <div className="mt-10 mx-auto max-w-xs hero-animate hero-delay-4" style={{ height: '1px', background: 'linear-gradient(90deg, transparent, var(--hero-text) 50%, transparent)' }} />
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1920&q=80')",
+          }}
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-[#F5E6D3]/90 via-[#F5E6D3]/85 to-[#F5E6D3]"
+          aria-hidden
+        />
+        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-32 text-center">
+          <div className="relative mx-auto max-w-4xl">
+            <Sparkles
+              className="absolute -top-2 left-4 sm:left-8 h-4 w-4 sm:h-5 sm:w-5 text-hero-text/70 hero-sparkle hero-sparkle-delay-1"
+              aria-hidden
+            />
+            <Sparkles
+              className="absolute top-8 -right-1 sm:right-4 h-3.5 w-3.5 sm:h-4 sm:w-4 text-gold-deep/80 hero-sparkle hero-sparkle-slow hero-sparkle-delay-2"
+              aria-hidden
+            />
+            <Sparkles
+              className="absolute top-1/2 -left-2 sm:left-0 h-3 w-3 sm:h-3.5 sm:w-3.5 text-gold/70 hero-sparkle hero-sparkle-delay-3"
+              aria-hidden
+            />
+            <Sparkles
+              className="absolute bottom-6 right-6 sm:right-12 h-4 w-4 sm:h-5 sm:w-5 text-hero-text/60 hero-sparkle hero-sparkle-slow hero-sparkle-delay-4"
+              aria-hidden
+            />
+            <Sparkles
+              className="absolute -bottom-1 left-1/3 h-3 w-3 text-gold-soft/80 hero-sparkle hero-sparkle-delay-2"
+              aria-hidden
+            />
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.3em] text-hero-text font-sans hero-animate hero-delay-1">
+              Engineered for your sweet tooth.
+            </p>
+            <h2 className="mt-4 sm:mt-6 font-display text-4xl sm:text-6xl md:text-7xl leading-[1.05] text-hero-text hero-animate hero-delay-2">
+              Baked with obsession.
+              <br />
+              Served with method.
+            </h2>
+            <p className="mt-6 max-w-2xl mx-auto text-hero-text/80 text-base sm:text-lg font-sans hero-animate hero-delay-3">
+              No guesswork. Just small batches, precise measurements, and a perfectly engineered dessert.
+            </p>
+          </div>
+          <div
+            className="mt-10 mx-auto max-w-xs rounded-full hero-animate hero-delay-4"
+            style={{ height: "1px", background: "linear-gradient(90deg, transparent, var(--hero-text) 50%, transparent)" }}
+          />
         </div>
       </section>
 
