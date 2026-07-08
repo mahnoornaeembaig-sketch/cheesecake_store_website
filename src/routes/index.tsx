@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ShoppingBag, Plus, Minus, X, Trash2, Calendar, MessageSquareHeart, Lock, User, Phone, Mail, Check, Loader2, Instagram, Linkedin, MapPin, Clock, MessageCircle, Sparkles } from "lucide-react";
 const biscoffImg = { url: "/images/biscoff-override.jpg" };
 const binaryCookieImg = { url: "/images/binary-cookie.jpg" };
@@ -65,6 +65,140 @@ function minDeliveryDateTime() {
   // yyyy-MM-ddTHH:mm
   const pad = (x: number) => String(x).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ==========================================
+// SCROLL-REVEAL: Intersection Observer hook
+// Triggers once when an element crosses the
+// given viewport threshold, then unobserves.
+// ==========================================
+function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.12) {
+  const ref = useRef<T | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    // If IntersectionObserver isn't available, just show the content.
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.unobserve(node);
+          }
+        });
+      },
+      { threshold, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, visible };
+}
+
+// Shared reveal classes: opacity-0 translate-y-12 -> opacity-100 translate-y-0
+function revealClasses(visible: boolean) {
+  return `transition-all duration-[800ms] ease-out ${
+    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+  }`;
+}
+
+// ==========================================
+// One "Premium Series" / "Signature Collection"
+// menu block. Wrapped in its own component so
+// the scroll-reveal hook can be scoped per section.
+// ==========================================
+function ProductCategorySection({
+  section,
+  items,
+  addToCart,
+}: {
+  section: Product["category"];
+  items: Product[];
+  addToCart: (p: Product) => void;
+}) {
+  const reveal = useScrollReveal<HTMLElement>();
+
+  return (
+    <section ref={reveal.ref} className={`mt-16 ${revealClasses(reveal.visible)}`}>
+      <div className="flex items-center gap-6 mb-10">
+        <div className="flex-1 gold-divider" />
+        <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
+          {section}
+        </h3>
+        <div className="flex-1 gold-divider" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {items.map((p, i) => (
+          <article
+            key={p.id}
+            className={`group bg-card border border-border rounded-md overflow-hidden flex flex-col transition-all hover:border-primary/60 ${revealClasses(
+              reveal.visible
+            )}`}
+            style={{
+              boxShadow: "var(--shadow-elegant)",
+              transitionDelay: reveal.visible ? `${(i % 6) * 100}ms` : "0ms",
+            }}
+          >
+            <div className="relative aspect-[4/5] overflow-hidden">
+              <img
+                src={p.image_url}
+                alt={p.name}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent pointer-events-none" />
+              <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                <span className="section-eyebrow bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
+                  {p.category.split(" ")[0]}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-6 flex flex-col flex-1">
+              <div className="flex flex-col gap-1">
+                <h4 className="font-serif text-2xl text-foreground">{p.name}</h4>
+                <div className="flex items-center gap-2">
+                  {p.onSale && p.originalPrice ? (
+                    <span className="text-xs text-muted-foreground line-through font-serif">
+                      {fmtPKR(p.originalPrice)}
+                    </span>
+                  ) : null}
+                  <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
+                    {fmtPKR(p.price)}
+                  </span>
+                  {p.onSale && (
+                    <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-primary/15 text-primary border border-primary/40">
+                      Sale
+                    </span>
+                  )}
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1">
+                {p.description}
+              </p>
+              <button
+                onClick={() => addToCart(p)}
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 h-12 rounded-sm btn-cta text-sm"
+              >
+                <Plus className="h-4 w-4" /> Add to Cart
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function Storefront() {
@@ -359,70 +493,12 @@ function Storefront() {
         {!loading && !loadError && sections.map((section) => {
           const items = products.filter((p) => p.category === section);
           return (
-            <section key={section} className="mt-16">
-              <div className="flex items-center gap-6 mb-10">
-                <div className="flex-1 gold-divider" />
-                <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
-                  {section}
-                </h3>
-                <div className="flex-1 gold-divider" />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {items.map((p) => (
-                  <article
-                    key={p.id}
-                    className="group bg-card border border-border rounded-md overflow-hidden flex flex-col transition-all hover:border-primary/60"
-                    style={{ boxShadow: "var(--shadow-elegant)" }}
-                  >
-                    <div className="relative aspect-[4/5] overflow-hidden">
-                      <img
-                        src={p.image_url}
-                        alt={p.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent pointer-events-none" />
-                      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                        <span className="section-eyebrow bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
-                          {p.category.split(" ")[0]}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-6 flex flex-col flex-1">
-                      <div className="flex flex-col gap-1">
-                        <h4 className="font-serif text-2xl text-foreground">{p.name}</h4>
-                        <div className="flex items-center gap-2">
-                          {p.onSale && p.originalPrice ? (
-                            <span className="text-xs text-muted-foreground line-through font-serif">
-                              {fmtPKR(p.originalPrice)}
-                            </span>
-                          ) : null}
-                          <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
-                            {fmtPKR(p.price)}
-                          </span>
-                          {p.onSale && (
-                            <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-primary/15 text-primary border border-primary/40">
-                              Sale
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1">
-                        {p.description}
-                      </p>
-                      <button
-                        onClick={() => addToCart(p)}
-                        className="mt-6 w-full inline-flex items-center justify-center gap-2 h-12 rounded-sm btn-cta text-sm"
-                      >
-                        <Plus className="h-4 w-4" /> Add to Cart
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
+            <ProductCategorySection
+              key={section}
+              section={section}
+              items={items}
+              addToCart={addToCart}
+            />
           );
         })}
       </main>

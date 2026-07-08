@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Star, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +32,51 @@ const PRODUCT_OPTIONS = [
   "The Cheesecake Method",
 ];
 
+// ==========================================
+// SCROLL-REVEAL: Intersection Observer hook
+// Triggers once when an element crosses the
+// given viewport threshold, then unobserves.
+// ==========================================
+function useScrollReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.12) {
+  const ref = useRef<T | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    // If IntersectionObserver isn't available, just show the content.
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.unobserve(node);
+          }
+        });
+      },
+      { threshold, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, visible };
+}
+
+// Shared reveal classes: opacity-0 translate-y-12 -> opacity-100 translate-y-0
+function revealClasses(visible: boolean) {
+  return `transition-all duration-[800ms] ease-out ${
+    visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+  }`;
+}
+
 function Stars({ value }: { value: number }) {
   return (
     <div className="flex gap-0.5" aria-label={`${value} out of 5 stars`}>
@@ -45,9 +90,14 @@ function Stars({ value }: { value: number }) {
   );
 }
 
-function ReviewCard({ r }: { r: Review }) {
+function ReviewCard({ r, visible, delayMs }: { r: Review; visible: boolean; delayMs: number }) {
   return (
-    <article className="bg-secondary/70 border border-border rounded-md p-6 flex flex-col gap-3 break-inside-avoid mb-6">
+    <article
+      className={`bg-secondary/70 border border-border rounded-md p-6 flex flex-col gap-3 break-inside-avoid mb-6 ${revealClasses(
+        visible
+      )}`}
+      style={{ transitionDelay: visible ? `${delayMs}ms` : "0ms" }}
+    >
       <Stars value={r.rating} />
       <p className="text-sm sm:text-base text-foreground leading-relaxed">"{r.text}"</p>
       <div className="mt-2 pt-3 border-t border-border/60 flex items-center justify-between gap-3">
@@ -68,6 +118,11 @@ export function ReviewsSection() {
   const [hoverRating, setHoverRating] = useState(0);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Scroll-reveal targets: Testimonials grid, Leave a Review, The Process
+  const testimonials = useScrollReveal<HTMLDivElement>();
+  const leaveReview = useScrollReveal<HTMLDivElement>();
+  const theProcess = useScrollReveal<HTMLDivElement>();
 
   // ==========================================
   // AUTH: Track logged-in user/session
@@ -180,28 +235,38 @@ export function ReviewsSection() {
   return (
     <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 sm:py-24">
       {/* Reviews grid — always visible, no login required to browse */}
-      <div className="flex items-center gap-6 mb-10">
-        <div className="flex-1 gold-divider" />
-        <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
-          Testimonials
-        </h3>
-        <div className="flex-1 gold-divider" />
-      </div>
+      <div ref={testimonials.ref} className={revealClasses(testimonials.visible)}>
+        <div className="flex items-center gap-6 mb-10">
+          <div className="flex-1 gold-divider" />
+          <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
+            Testimonials
+          </h3>
+          <div className="flex-1 gold-divider" />
+        </div>
 
-      <p className="text-center section-eyebrow">Social Proof</p>
-      <h2 className="mt-3 text-center font-serif text-3xl sm:text-5xl text-foreground">
-        Loved by our <span className="italic gold-text">regulars</span>.
-      </h2>
+        <p className="text-center section-eyebrow">Social Proof</p>
+        <h2 className="mt-3 text-center font-serif text-3xl sm:text-5xl text-foreground">
+          Loved by our <span className="italic gold-text">regulars</span>.
+        </h2>
 
-      <div className="mt-12 columns-1 sm:columns-2 lg:columns-3 gap-6">
-        {reviews.map((r, i) => (
-          <ReviewCard key={`${r.name}-${i}`} r={r} />
-        ))}
+        <div className="mt-12 columns-1 sm:columns-2 lg:columns-3 gap-6">
+          {reviews.map((r, i) => (
+            <ReviewCard
+              key={`${r.name}-${i}`}
+              r={r}
+              visible={testimonials.visible}
+              delayMs={(i % 6) * 90}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Leave a review — gated behind login */}
       <div
-        className="mt-16 max-w-2xl mx-auto bg-card border border-border rounded-md p-6 sm:p-8"
+        ref={leaveReview.ref}
+        className={`mt-16 max-w-2xl mx-auto bg-card border border-border rounded-md p-6 sm:p-8 ${revealClasses(
+          leaveReview.visible
+        )}`}
         style={{ boxShadow: "var(--shadow-elegant)" }}
       >
         <p className="section-eyebrow text-center">Your Turn</p>
@@ -315,7 +380,7 @@ export function ReviewsSection() {
       </div>
 
       {/* Behind the scenes video */}
-      <div className="mt-20">
+      <div ref={theProcess.ref} className={`mt-20 ${revealClasses(theProcess.visible)}`}>
         <div className="flex items-center gap-6 mb-10">
           <div className="flex-1 gold-divider" />
           <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
