@@ -1,13 +1,23 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Star, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 type Review = {
+  id?: string;
   name: string;
   tag: string;
   rating: number;
   text: string;
+};
+
+type DbReview = {
+  id: string;
+  name: string;
+  product_tag: string;
+  rating: number;
+  review_text: string;
+  created_at: string;
 };
 
 const SEED_REVIEWS: Review[] = [
@@ -29,6 +39,16 @@ const PRODUCT_OPTIONS = [
   "The Cheesecake Method",
 ];
 
+function mapDbReview(row: DbReview): Review {
+  return {
+    id: row.id,
+    name: row.name,
+    tag: row.product_tag,
+    rating: row.rating,
+    text: row.review_text,
+  };
+}
+
 function Stars({ value }: { value: number }) {
   return (
     <div className="flex gap-0.5" aria-label={`${value} out of 5 stars`}>
@@ -44,7 +64,7 @@ function Stars({ value }: { value: number }) {
 
 function ReviewCard({ r }: { r: Review }) {
   return (
-    <article className="bg-secondary/70 border border-border rounded-md p-6 flex flex-col gap-3 break-inside-avoid mb-6">
+    <article className="bg-secondary/70 border border-border rounded-2xl p-6 flex flex-col gap-3 break-inside-avoid mb-6">
       <Stars value={r.rating} />
       <p className="text-sm sm:text-base text-foreground leading-relaxed">"{r.text}"</p>
       <div className="mt-2 pt-3 border-t border-border/60 flex items-center justify-between gap-3">
@@ -56,13 +76,43 @@ function ReviewCard({ r }: { r: Review }) {
 }
 
 export function ReviewsSection() {
-  const [reviews, setReviews] = useState<Review[]>(SEED_REVIEWS);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
   const [name, setName] = useState("");
   const [product, setProduct] = useState(PRODUCT_OPTIONS[0]);
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      setLoadingReviews(true);
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, name, product_tag, rating, review_text, created_at")
+        .order("created_at", { ascending: false });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.warn("Reviews fetch error:", error.message);
+        toast.error("Couldn't load reviews. Showing recent highlights instead.");
+        setReviews(SEED_REVIEWS);
+      } else {
+        const rows = (data ?? []).map(mapDbReview);
+        setReviews(rows.length > 0 ? rows : SEED_REVIEWS);
+      }
+
+      setLoadingReviews(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -72,31 +122,31 @@ export function ReviewsSection() {
       toast.error("Please fill out your name, rating, and review.");
       return;
     }
+
     setSubmitting(true);
     const optimistic: Review = { name: cleanName, tag: product, rating, text: cleanText };
+
     try {
-      const { error } = await supabase.from("reviews").insert({
-        name: cleanName,
-        product_tag: product,
-        rating,
-        review_text: cleanText,
-      });
+      const { error } = await supabase.from("reviews").insert([
+        {
+          name: cleanName,
+          product_tag: product,
+          rating,
+          review_text: cleanText,
+        },
+      ]);
+
       if (error) throw error;
-      setReviews((r) => [optimistic, ...r]);
+
+      setReviews((prev) => [optimistic, ...prev]);
       toast.success("Thanks for the love! Your review has been submitted.");
       setName("");
       setText("");
       setRating(5);
       setProduct(PRODUCT_OPTIONS[0]);
-    } catch (err: any) {
-      // Still show the review locally so UI isn't broken if table isn't provisioned yet.
-      setReviews((r) => [optimistic, ...r]);
-      toast.success("Thanks for the love! Your review has been submitted.");
-      setName("");
-      setText("");
-      setRating(5);
-      setProduct(PRODUCT_OPTIONS[0]);
-      console.warn("Review insert warning:", err?.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to submit your review. Please try again.";
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -118,14 +168,24 @@ export function ReviewsSection() {
         Loved by our <span className="italic gold-text">regulars</span>.
       </h2>
 
-      <div className="mt-12 columns-1 sm:columns-2 lg:columns-3 gap-6">
-        {reviews.map((r, i) => (
-          <ReviewCard key={`${r.name}-${i}`} r={r} />
-        ))}
-      </div>
+      {loadingReviews ? (
+        <div className="mt-12 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading reviews…
+        </div>
+      ) : (
+        <div className="mt-12 columns-1 sm:columns-2 lg:columns-3 gap-6">
+          {reviews.map((r, i) => (
+            <ReviewCard key={r.id ?? `${r.name}-${i}`} r={r} />
+          ))}
+        </div>
+      )}
 
       {/* Leave a review form */}
-      <div className="mt-16 max-w-2xl mx-auto bg-card border border-border rounded-md p-6 sm:p-8" style={{ boxShadow: "var(--shadow-elegant)" }}>
+      <div
+        className="mt-16 max-w-2xl mx-auto bg-card border border-border rounded-3xl p-6 sm:p-8"
+        style={{ boxShadow: "var(--shadow-elegant)" }}
+      >
         <p className="section-eyebrow text-center">Your Turn</p>
         <h3 className="mt-2 text-center font-serif text-2xl sm:text-3xl text-foreground">Leave a Review</h3>
         <div className="mt-4 mx-auto max-w-xs gold-divider" />
@@ -142,7 +202,7 @@ export function ReviewsSection() {
               onChange={(e) => setName(e.target.value)}
               placeholder="@yourhandle"
               maxLength={80}
-              className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              className="w-full bg-background border border-input rounded-xl h-11 px-4 text-sm text-foreground focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -153,7 +213,7 @@ export function ReviewsSection() {
             <select
               value={product}
               onChange={(e) => setProduct(e.target.value)}
-              className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              className="w-full bg-background border border-input rounded-xl h-11 px-4 text-sm text-foreground focus:outline-none focus:border-primary"
             >
               {PRODUCT_OPTIONS.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -175,7 +235,7 @@ export function ReviewsSection() {
                     onClick={() => setRating(n)}
                     onMouseEnter={() => setHoverRating(n)}
                     aria-label={`${n} star${n > 1 ? "s" : ""}`}
-                    className="p-1 -m-1 transition-transform hover:scale-110"
+                    className="p-1.5 -m-1 rounded-full transition-transform hover:scale-110"
                   >
                     <Star className={`h-7 w-7 ${active ? "fill-primary text-primary" : "text-muted-foreground/40"}`} />
                   </button>
@@ -195,14 +255,14 @@ export function ReviewsSection() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Tell us how it was…"
-              className="w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
+              className="w-full bg-background border border-input rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-sm btn-cta text-sm disabled:opacity-60"
+            className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-full btn-cta text-sm disabled:opacity-60"
           >
             {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : <><Send className="h-4 w-4" /> Submit Review</>}
           </button>
@@ -224,7 +284,7 @@ export function ReviewsSection() {
 
         <div className="mt-10 mx-auto w-full max-w-[360px] sm:max-w-[400px]">
           <div
-            className="relative w-full overflow-hidden rounded-2xl border border-border bg-card"
+            className="relative w-full overflow-hidden rounded-3xl border border-border bg-card"
             style={{ aspectRatio: "9 / 16", boxShadow: "var(--shadow-elegant)" }}
           >
             <iframe
