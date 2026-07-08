@@ -140,6 +140,43 @@
   animation-delay: 0.5s;
 }
 
+@keyframes hero-sparkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.85;
+    transform: translateY(-5px);
+  }
+}
+
+@utility hero-sparkle {
+  pointer-events: none;
+  animation: hero-sparkle 3.5s ease-in-out infinite;
+}
+
+@utility hero-sparkle-slow {
+  animation-duration: 4s;
+}
+
+@utility hero-sparkle-delay-1 {
+  animation-delay: 0.4s;
+}
+
+@utility hero-sparkle-delay-2 {
+  animation-delay: 1.1s;
+}
+
+@utility hero-sparkle-delay-3 {
+  animation-delay: 1.8s;
+}
+
+@utility hero-sparkle-delay-4 {
+  animation-delay: 2.5s;
+}
+
 @utility btn-cta {
   background-color: oklch(0.35 0.08 45);
   color: oklch(0.94 0.025 80);
