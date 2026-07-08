@@ -2,6 +2,9 @@ import { useState, useEffect, type FormEvent } from "react";
 import { Star, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
+import type { Session } from "@supabase/supabase-js";
 
 type Review = {
   name: string;
@@ -16,7 +19,7 @@ const SEED_REVIEWS: Review[] = [
   { name: "ibrahimraza5555", tag: "Signature Collection", rating: 5, text: "Perfection 🔥 💗" },
   { name: "eshaalkhn_", tag: "Premium Series", rating: 5, text: "Looks so yummy, keep going 🤍 😋" },
   { name: "noor.raza1234", tag: "The Cheesecake Method", rating: 5, text: "Delicious 🤤" },
-]; 
+];
 
 const PRODUCT_OPTIONS = [
   "Biscoff Override",
@@ -57,12 +60,32 @@ function ReviewCard({ r }: { r: Review }) {
 
 export function ReviewsSection() {
   const [reviews, setReviews] = useState<Review[]>(SEED_REVIEWS);
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [name, setName] = useState("");
   const [product, setProduct] = useState(PRODUCT_OPTIONS[0]);
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // ==========================================
+  // AUTH: Track logged-in user/session
+  // ==========================================
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setSessionLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // ==========================================
   // READ (GET): Fetch reviews on mount
@@ -76,7 +99,7 @@ export function ReviewsSection() {
           .order("created_at", { ascending: false });
 
         if (error) throw error;
-        
+
         if (data && data.length > 0) {
           // Map Supabase DB columns to our React component's Review type
           const formattedReviews = data.map((item) => ({
@@ -85,7 +108,7 @@ export function ReviewsSection() {
             rating: item.rating,
             text: item.review_text,
           }));
-          
+
           // Combine the real DB reviews (first) with the hardcoded seeds (last)
           setReviews([...formattedReviews, ...SEED_REVIEWS]);
         }
@@ -99,19 +122,25 @@ export function ReviewsSection() {
   }, []);
 
   // ==========================================
-  // WRITE (POST): Submit a new review
+  // WRITE (POST): Submit a new review (requires session)
   // ==========================================
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!session) {
+      toast.error("Please log in to leave a review.");
+      return;
+    }
+
     const cleanName = name.trim().replace(/^@/, "");
     const cleanText = text.trim();
     if (!cleanName || !cleanText || rating < 1) {
       toast.error("Please fill out your name, rating, and review.");
       return;
     }
-    
+
     setSubmitting(true);
-    
+
     try {
       // Insert into DB and select the new row back
       const { data, error } = await supabase
@@ -121,6 +150,7 @@ export function ReviewsSection() {
           product_tag: product,
           rating,
           review_text: cleanText,
+          user_id: session.user.id,
         })
         .select()
         .single();
@@ -138,13 +168,12 @@ export function ReviewsSection() {
       // Ensure the new review goes at the very top of the list
       setReviews((r) => [newReview, ...r]);
       toast.success("Thanks for the love! Your review has been submitted.");
-      
+
       // Reset form fields
       setName("");
       setText("");
       setRating(5);
       setProduct(PRODUCT_OPTIONS[0]);
-
     } catch (err: any) {
       console.warn("Review insert error:", err?.message);
       toast.error("Failed to submit review. Please try again.");
@@ -155,7 +184,7 @@ export function ReviewsSection() {
 
   return (
     <section className="mx-auto max-w-7xl px-5 sm:px-8 py-16 sm:py-24">
-      {/* Reviews grid */}
+      {/* Reviews grid — always visible, no login required to browse */}
       <div className="flex items-center gap-6 mb-10">
         <div className="flex-1 gold-divider" />
         <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
@@ -175,89 +204,119 @@ export function ReviewsSection() {
         ))}
       </div>
 
-      {/* Leave a review form */}
-      <div className="mt-16 max-w-2xl mx-auto bg-card border border-border rounded-md p-6 sm:p-8" style={{ boxShadow: "var(--shadow-elegant)" }}>
+      {/* Leave a review — gated behind login */}
+      <div
+        className="mt-16 max-w-2xl mx-auto bg-card border border-border rounded-md p-6 sm:p-8"
+        style={{ boxShadow: "var(--shadow-elegant)" }}
+      >
         <p className="section-eyebrow text-center">Your Turn</p>
         <h3 className="mt-2 text-center font-serif text-2xl sm:text-3xl text-foreground">Leave a Review</h3>
         <div className="mt-4 mx-auto max-w-xs gold-divider" />
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-5">
-          <div>
-            <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
-              Name / Instagram Handle
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="@yourhandle"
-              maxLength={80}
-              className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+        {sessionLoading ? (
+          <div className="mt-8 flex justify-center">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : !session ? (
+          <div className="mt-8">
+            <p className="text-center text-sm text-muted-foreground mb-4">
+              Sign in to leave a review.
+            </p>
+            <Auth
+              supabaseClient={supabase}
+              appearance={{ theme: ThemeSupa }}
+              providers={["google"]}
             />
           </div>
-
-          <div>
-            <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
-              Product Ordered
-            </label>
-            <select
-              value={product}
-              onChange={(e) => setProduct(e.target.value)}
-              className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
-            >
-              {PRODUCT_OPTIONS.map((p) => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
-              Rating
-            </label>
-            <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
-              {[1, 2, 3, 4, 5].map((n) => {
-                const active = (hoverRating || rating) >= n;
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setRating(n)}
-                    onMouseEnter={() => setHoverRating(n)}
-                    aria-label={`${n} star${n > 1 ? "s" : ""}`}
-                    className="p-1 -m-1 transition-transform hover:scale-110"
-                  >
-                    <Star className={`h-7 w-7 ${active ? "fill-primary text-primary" : "text-muted-foreground/40"}`} />
-                  </button>
-                );
-              })}
+        ) : (
+          <form onSubmit={onSubmit} className="mt-8 space-y-5">
+            <div>
+              <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                Name / Instagram Handle
+              </label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="@yourhandle"
+                maxLength={80}
+                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
-              Your Review
-            </label>
-            <textarea
-              required
-              rows={3}
-              maxLength={500}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Tell us how it was…"
-              className="w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
-            />
-          </div>
+            <div>
+              <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                Product Ordered
+              </label>
+              <select
+                value={product}
+                onChange={(e) => setProduct(e.target.value)}
+                className="w-full bg-background border border-input rounded-sm h-11 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+              >
+                {PRODUCT_OPTIONS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-sm btn-cta text-sm disabled:opacity-60"
-          >
-            {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Submitting…</> : <><Send className="h-4 w-4" /> Submit Review</>}
-          </button>
-        </form>
+            <div>
+              <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                Rating
+              </label>
+              <div className="flex gap-1" onMouseLeave={() => setHoverRating(0)}>
+                {[1, 2, 3, 4, 5].map((n) => {
+                  const active = (hoverRating || rating) >= n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setRating(n)}
+                      onMouseEnter={() => setHoverRating(n)}
+                      aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      className="p-1 -m-1 transition-transform hover:scale-110"
+                    >
+                      <Star className={`h-7 w-7 ${active ? "fill-primary text-primary" : "text-muted-foreground/40"}`} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs tracking-[0.25em] uppercase text-muted-foreground mb-2">
+                Your Review
+              </label>
+              <textarea
+                required
+                rows={3}
+                maxLength={500}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Tell us how it was…"
+                className="w-full bg-background border border-input rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-sm btn-cta text-sm disabled:opacity-60"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Submitting…
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" /> Submit Review
+                </>
+              )}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Behind the scenes video */}
