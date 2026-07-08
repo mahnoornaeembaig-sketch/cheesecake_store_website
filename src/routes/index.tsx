@@ -267,7 +267,7 @@ function Storefront() {
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center justify-center whitespace-nowrap h-7 sm:h-10 px-2 py-1.5 sm:px-5 sm:py-2 rounded-sm btn-cta text-[10px] sm:text-xs"
+              className="inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 sm:px-4 sm:py-2 rounded-full btn-cta text-[10px] sm:text-xs"
             >
               Order Now
             </button>
