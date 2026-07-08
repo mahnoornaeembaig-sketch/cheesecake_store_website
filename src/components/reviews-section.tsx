@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Star, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,7 @@ const SEED_REVIEWS: Review[] = [
   { name: "ibrahimraza5555", tag: "Signature Collection", rating: 5, text: "Perfection 🔥 💗" },
   { name: "eshaalkhn_", tag: "Premium Series", rating: 5, text: "Looks so yummy, keep going 🤍 😋" },
   { name: "noor.raza1234", tag: "The Cheesecake Method", rating: 5, text: "Delicious 🤤" },
-];
+]; 
 
 const PRODUCT_OPTIONS = [
   "Biscoff Override",
@@ -64,6 +64,43 @@ export function ReviewsSection() {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // ==========================================
+  // READ (GET): Fetch reviews on mount
+  // ==========================================
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          // Map Supabase DB columns to our React component's Review type
+          const formattedReviews = data.map((item) => ({
+            name: item.name,
+            tag: item.product_tag,
+            rating: item.rating,
+            text: item.review_text,
+          }));
+          
+          // Combine the real DB reviews (first) with the hardcoded seeds (last)
+          setReviews([...formattedReviews, ...SEED_REVIEWS]);
+        }
+      } catch (err) {
+        console.error("Failed to load reviews from Supabase:", err);
+        // We leave the SEED_REVIEWS in place as a graceful fallback
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  // ==========================================
+  // WRITE (POST): Submit a new review
+  // ==========================================
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const cleanName = name.trim().replace(/^@/, "");
@@ -72,31 +109,45 @@ export function ReviewsSection() {
       toast.error("Please fill out your name, rating, and review.");
       return;
     }
+    
     setSubmitting(true);
-    const optimistic: Review = { name: cleanName, tag: product, rating, text: cleanText };
+    
     try {
-      const { error } = await supabase.from("reviews").insert({
-        name: cleanName,
-        product_tag: product,
-        rating,
-        review_text: cleanText,
-      });
+      // Insert into DB and select the new row back
+      const { data, error } = await supabase
+        .from("reviews")
+        .insert({
+          name: cleanName,
+          product_tag: product,
+          rating,
+          review_text: cleanText,
+        })
+        .select()
+        .single();
+
       if (error) throw error;
-      setReviews((r) => [optimistic, ...r]);
+
+      // Update the UI immediately with the verified DB data
+      const newReview: Review = {
+        name: data.name,
+        tag: data.product_tag,
+        rating: data.rating,
+        text: data.review_text,
+      };
+
+      // Ensure the new review goes at the very top of the list
+      setReviews((r) => [newReview, ...r]);
       toast.success("Thanks for the love! Your review has been submitted.");
+      
+      // Reset form fields
       setName("");
       setText("");
       setRating(5);
       setProduct(PRODUCT_OPTIONS[0]);
+
     } catch (err: any) {
-      // Still show the review locally so UI isn't broken if table isn't provisioned yet.
-      setReviews((r) => [optimistic, ...r]);
-      toast.success("Thanks for the love! Your review has been submitted.");
-      setName("");
-      setText("");
-      setRating(5);
-      setProduct(PRODUCT_OPTIONS[0]);
-      console.warn("Review insert warning:", err?.message);
+      console.warn("Review insert error:", err?.message);
+      toast.error("Failed to submit review. Please try again.");
     } finally {
       setSubmitting(false);
     }
