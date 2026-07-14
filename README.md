@@ -30,6 +30,13 @@ To keep operating costs at $0 for the business owner, this project deliberately 
 
 Instead, the system utilizes the Click to Chat API. The frontend pulls the customer's phone number and order status from the database, dynamically formats a custom message string, and URL-encodes it. This generates a deep link that seamlessly hands off the payload to the native WhatsApp application on the admin's device.
 
+
+
+https://github.com/user-attachments/assets/79ff6df0-35ce-44bd-bbf4-ec7af9249127
+
+Demo:
+https://thecheesecakemethod.vercel.app/
+
 💻 Local Setup
 Clone the repository:
 
