@@ -1,4 +1,5 @@
 🍰 **The Cheesecake Method**
+---
 A full-stack, custom e-commerce storefront and secure admin management system built for a boutique cheesecake business.
 
 This project provides a beautiful, responsive, and conversion-optimized customer-facing menu, while powering a private, highly secure backend for the business owner to manage orders, update statuses, and interact with customers.
