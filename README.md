@@ -15,8 +15,9 @@ _**🛒 Customer Storefront**_
 **Private Management Hub:** A completely hidden admin panel protected by strict Supabase Row-Level Security (RLS) and custom SQL policies. Customer data is never exposed to the public.
 
 **One-Click WhatsApp Updates:** A lightweight, cost-free communication pipeline. When an order status changes, the dashboard dynamically generates a pre-filled wa.me deep link. The owner simply clicks the button to open WhatsApp with a formatted update ready to send—zero manual typing required.
-_
-**🛠️ Tech Stack**_
+
+_**🛠️ Tech Stack**_
+
 **Frontend:** React / Vite (UI generated via Lovable)
 
 **Backend & Database:** Supabase (PostgreSQL)
