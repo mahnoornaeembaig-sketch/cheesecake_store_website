@@ -336,10 +336,16 @@ function Storefront() {
     if (!validateCheckout()) return;
     setSubmitting(true);
     setSubmitError("");
+    
     try {
-      const { data: order, error: orderErr } = await supabase
+      // 1. Generate the unique ID locally to bypass the RLS read restriction
+      const newOrderId = crypto.randomUUID();
+
+      // 2. Insert the order with the generated ID attached
+      const { error: orderErr } = await supabase
         .from("orders")
         .insert({
+          id: newOrderId,
           customer_name: custName.trim(),
           customer_phone: custPhone.trim(),
           customer_email: custEmail.trim() || null,
@@ -347,17 +353,18 @@ function Storefront() {
           delivery_date: deliveryDate,
           custom_message: customMessage || null,
           total_amount: total,
-        })
-        .select("id")
-        .single();
-      if (orderErr || !order) throw new Error(orderErr?.message || "Failed to create order");
+        });
+        
+      if (orderErr) throw new Error(orderErr.message);
 
+      // 3. Attach that same ID to the cart items
       const items = cart.map((i) => ({
-        order_id: order.id,
+        order_id: newOrderId,
         product_id: i.id,
         quantity: i.quantity,
         unit_price: i.price,
       }));
+      
       const { error: itemsErr } = await supabase.from("order_items").insert(items);
       if (itemsErr) throw new Error(itemsErr.message);
 
