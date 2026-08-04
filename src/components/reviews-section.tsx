@@ -409,7 +409,7 @@ export function ReviewsSection() {
             />
           </div>
           <p className="mt-4 text-center text-xs tracking-[0.25em] uppercase text-muted-foreground">
-            @thecheesecakemehthod
+            @thecheesecakemethod
           </p>
         </div>
       </div>

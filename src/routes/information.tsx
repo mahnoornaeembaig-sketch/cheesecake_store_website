@@ -160,7 +160,7 @@ function InformationPage() {
             </a>
             <div className="w-px h-4 bg-border" />
             <a
-              href="https://www.instagram.com/thecheesecakemehthod/"
+              href="https://www.instagram.com/thecheesecakemethod/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
