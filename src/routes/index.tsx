@@ -46,13 +46,31 @@ const LOCAL_IMAGES: Record<string, string> = {
   "Strawberry.exe": strawberryImg.url,
 };
 
-const LOCAL_PRICES: Record<string, { price: number; originalPrice: number }> = {
-  "Binary Cookie": { price: 2499, originalPrice: 2600 },
-  "Pistachio Table": { price: 2999, originalPrice: 3200 },
-  "Biscoff Override": { price: 2850, originalPrice: 2950 },
-  "Mango.io": { price: 2599, originalPrice: 2800 },
-  "Strawberry.exe": { price: 2599, originalPrice: 2800 },
+// Regular (non-sale) prices for locally-priced products.
+const LOCAL_PRICES: Record<string, { originalPrice: number }> = {
+  "Binary Cookie": { originalPrice: 2600 },
+  "Pistachio Table": { originalPrice: 3200 },
+  "Biscoff Override": { originalPrice: 2950 },
+  "Mango.io": { originalPrice: 2800 },
+  "Strawberry.exe": { originalPrice: 2800 },
 };
+
+// ==========================================
+// SALE WINDOW: 14% off, active from now through
+// August 14, ending at midnight (00:00) on
+// August 15, Pakistan Standard Time (UTC+5).
+// ==========================================
+const SALE_PERCENT_OFF = 14;
+const SALE_END_UTC_MS = Date.UTC(2026, 7, 14, 19, 0, 0); // Aug 15 00:00 PKT == Aug 14 19:00 UTC
+
+function isSaleActive() {
+  return Date.now() < SALE_END_UTC_MS;
+}
+
+function applySale(originalPrice: number, onSale: boolean) {
+  if (!onSale) return originalPrice;
+  return Math.round(originalPrice * (1 - SALE_PERCENT_OFF / 100));
+}
 
 const DELIVERY_FEE = 350;
 
@@ -179,7 +197,7 @@ function ProductCategorySection({
                   </span>
                   {p.onSale && (
                     <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-primary/15 text-primary border border-primary/40">
-                      Sale
+                      {SALE_PERCENT_OFF}% Off
                     </span>
                   )}
                 </div>
@@ -240,15 +258,18 @@ function Storefront() {
         setLoadError(error.message);
         setProducts([]);
       } else {
+        const saleActive = isSaleActive();
         const rows = (data ?? []).map((r: any) => {
           const local = LOCAL_PRICES[r.name];
+          const regularPrice = local ? local.originalPrice : Number(r.price) || 0;
+          const onSale = saleActive; // uniform storewide sale window
           return {
             id: String(r.id),
             name: r.name,
             description: r.description ?? "",
-            price: local ? local.price : Number(r.price) || 0,
-            originalPrice: local ? local.originalPrice : undefined,
-            onSale: !!local,
+            price: applySale(regularPrice, onSale),
+            originalPrice: onSale ? regularPrice : undefined,
+            onSale,
             image_url: LOCAL_IMAGES[r.name] || "",
             category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
           };
@@ -389,6 +410,12 @@ function Storefront() {
 
   return (
     <div className="min-h-screen">
+      {/* Sale announcement bar */}
+      {isSaleActive() && (
+        <div className="relative z-50 bg-primary text-primary-foreground text-center text-[11px] sm:text-xs tracking-[0.15em] uppercase font-semibold py-2 px-4">
+          {SALE_PERCENT_OFF}% Off Everything — Ends August 14
+        </div>
+      )}
       {/* Navbar */}
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 flex items-center justify-between gap-2">
