@@ -14,22 +14,21 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "The Cheesecake Method — Artisan Cheesecakes" },
-      { name: "description", content: "Premium handcrafted cheesecakes. Biscoff, Pistachio Kunafa, Oreo, Mango, Strawberry. Order for delivery in PKR." },
+      { name: "description", content: "Premium handcrafted cheesecakes and donuts. Biscoff, Pistachio Kunafa, Oreo, Mango, Strawberry. Order for delivery in PKR." },
     ],
   }),
   component: Storefront,
 });
+
+type Category = "NEW ARRIVAL" | "PREMIUM SERIES" | "SIGNATURE COLLECTION" | "DONUTS";
 
 type Product = {
   id: string;
   name: string;
   description: string;
   price: number;
-  originalPrice?: number;
-  onSale?: boolean;
-  saleLabel?: string;
   image_url: string;
-  category: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
+  category: Category;
 };
 
 type CartItem = Product & {
@@ -38,7 +37,8 @@ type CartItem = Product & {
   delivery_date: string;
 };
 
-// Local images keyed by product name — always used, ignoring any Supabase image_url
+// Local images keyed by product name — always used for these products, ignoring any Supabase image_url.
+// Products not listed here (new arrivals, donuts) use the image_url from Supabase.
 const LOCAL_IMAGES: Record<string, string> = {
   "Biscoff Override": biscoffImg.url,
   "Binary Cookie": binaryCookieImg.url,
@@ -47,34 +47,29 @@ const LOCAL_IMAGES: Record<string, string> = {
   "Strawberry.exe": strawberryImg.url,
 };
 
-// Baseline everyday prices — this is the permanent small discount that was
-// always on before the 14% flash sale, and what the site reverts to once
-// the flash sale ends.
-const LOCAL_PRICES: Record<string, { price: number; originalPrice: number }> = {
-  "Binary Cookie": { price: 2499, originalPrice: 2600 },
-  "Pistachio Table": { price: 2999, originalPrice: 3200 },
-  "Biscoff Override": { price: 2850, originalPrice: 2950 },
-  "Mango.io": { price: 2599, originalPrice: 2800 },
-  "Strawberry.exe": { price: 2599, originalPrice: 2800 },
+// Order the sections appear on the page
+const SECTION_ORDER: Category[] = ["NEW ARRIVAL", "PREMIUM SERIES", "SIGNATURE COLLECTION", "DONUTS"];
+
+// Heading shown above each section
+const SECTION_TITLES: Record<Category, string> = {
+  "NEW ARRIVAL": "NEW ARRIVALS",
+  "PREMIUM SERIES": "PREMIUM SERIES",
+  "SIGNATURE COLLECTION": "SIGNATURE COLLECTION",
+  "DONUTS": "DONUTS",
 };
 
-// ==========================================
-// FLASH SALE WINDOW: 14% off (computed off the
-// full original price, not the everyday price),
-// active from now through August 14, ending at
-// midnight (00:00) on August 15, Pakistan time.
-// Once this window ends, prices revert to the
-// permanent everyday discount in LOCAL_PRICES above.
-// ==========================================
-const FLASH_SALE_PERCENT_OFF = 14;
-const FLASH_SALE_END_UTC_MS = Date.UTC(2026, 7, 14, 19, 0, 0); // Aug 15 00:00 PKT == Aug 14 19:00 UTC
+// Small badge on each product image
+const CATEGORY_BADGES: Record<Category, string> = {
+  "NEW ARRIVAL": "New",
+  "PREMIUM SERIES": "Premium",
+  "SIGNATURE COLLECTION": "Signature",
+  "DONUTS": "Donuts",
+};
 
-function isFlashSaleActive() {
-  return Date.now() < FLASH_SALE_END_UTC_MS;
-}
+const toCategory = (c: unknown): Category =>
+  SECTION_ORDER.includes(c as Category) ? (c as Category) : "PREMIUM SERIES";
 
 const DELIVERY_FEE = 350;
-
 
 const fmtPKR = (n: number) =>
   "PKR " + n.toLocaleString("en-PK", { maximumFractionDigits: 0 });
@@ -132,16 +127,17 @@ function revealClasses(visible: boolean) {
 }
 
 // ==========================================
-// One "Premium Series" / "Signature Collection"
-// menu block. Wrapped in its own component so
-// the scroll-reveal hook can be scoped per section.
+// One menu block (New Arrivals, Premium Series,
+// Signature Collection, Donuts). Wrapped in its
+// own component so the scroll-reveal hook can be
+// scoped per section.
 // ==========================================
 function ProductCategorySection({
   section,
   items,
   addToCart,
 }: {
-  section: Product["category"];
+  section: Category;
   items: Product[];
   addToCart: (p: Product) => void;
 }) {
@@ -152,7 +148,7 @@ function ProductCategorySection({
       <div className="flex items-center gap-6 mb-10">
         <div className="flex-1 gold-divider" />
         <h3 className="font-serif text-sm sm:text-base tracking-[0.4em] gold-text whitespace-nowrap">
-          {section}
+          {SECTION_TITLES[section]}
         </h3>
         <div className="flex-1 gold-divider" />
       </div>
@@ -179,7 +175,7 @@ function ProductCategorySection({
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/10 to-transparent pointer-events-none" />
               <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
                 <span className="section-eyebrow bg-background/60 backdrop-blur px-3 py-1 rounded-full border border-border">
-                  {p.category.split(" ")[0]}
+                  {CATEGORY_BADGES[p.category]}
                 </span>
               </div>
             </div>
@@ -187,21 +183,9 @@ function ProductCategorySection({
             <div className="p-6 flex flex-col flex-1">
               <div className="flex flex-col gap-1">
                 <h4 className="font-serif text-2xl text-foreground">{p.name}</h4>
-                <div className="flex items-center gap-2">
-                  {p.onSale && p.originalPrice ? (
-                    <span className="text-xs text-muted-foreground line-through font-serif">
-                      {fmtPKR(p.originalPrice)}
-                    </span>
-                  ) : null}
-                  <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
-                    {fmtPKR(p.price)}
-                  </span>
-                  {p.onSale && (
-                    <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-primary/15 text-primary border border-primary/40">
-                      {p.saleLabel || "Sale"}
-                    </span>
-                  )}
-                </div>
+                <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
+                  {fmtPKR(p.price)}
+                </span>
               </div>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1">
                 {p.description}
@@ -259,40 +243,15 @@ function Storefront() {
         setLoadError(error.message);
         setProducts([]);
       } else {
-        const flashSaleActive = isFlashSaleActive();
-        const rows = (data ?? []).map((r: any) => {
-          const local = LOCAL_PRICES[r.name];
-          const regularPrice = local ? local.originalPrice : Number(r.price) || 0;
-
-          if (flashSaleActive) {
-            // 14% off the full regular price, storewide, only during the flash sale window.
-            const flashPrice = Math.round(regularPrice * (1 - FLASH_SALE_PERCENT_OFF / 100));
-            return {
-              id: String(r.id),
-              name: r.name,
-              description: r.description ?? "",
-              price: flashPrice,
-              originalPrice: regularPrice,
-              onSale: true,
-              saleLabel: `${FLASH_SALE_PERCENT_OFF}% Off`,
-              image_url: LOCAL_IMAGES[r.name] || "",
-              category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
-            };
-          }
-
-          // Flash sale window over — revert to the permanent everyday price/discount.
-          return {
-            id: String(r.id),
-            name: r.name,
-            description: r.description ?? "",
-            price: local ? local.price : regularPrice,
-            originalPrice: local ? local.originalPrice : undefined,
-            onSale: !!local,
-            saleLabel: "Sale",
-            image_url: LOCAL_IMAGES[r.name] || "",
-            category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
-          };
-        });
+        const rows: Product[] = (data ?? []).map((r: any) => ({
+          id: String(r.id),
+          name: r.name,
+          description: r.description ?? "",
+          price: Number(r.price) || 0,
+          // Existing cheesecakes keep their uploaded local image; new products use the Supabase image_url
+          image_url: LOCAL_IMAGES[r.name] || r.image_url || "",
+          category: toCategory(r.category),
+        }));
         setProducts(rows);
         setLoadError(null);
       }
@@ -376,7 +335,7 @@ function Storefront() {
     if (!validateCheckout()) return;
     setSubmitting(true);
     setSubmitError("");
-    
+
     try {
       // 1. Generate the unique ID locally to bypass the RLS read restriction
       const newOrderId = crypto.randomUUID();
@@ -394,7 +353,7 @@ function Storefront() {
           custom_message: customMessage || null,
           total_amount: total,
         });
-        
+
       if (orderErr) throw new Error(orderErr.message);
 
       // 3. Attach that same ID to the cart items
@@ -404,7 +363,7 @@ function Storefront() {
         quantity: i.quantity,
         unit_price: i.price,
       }));
-      
+
       const { error: itemsErr } = await supabase.from("order_items").insert(items);
       if (itemsErr) throw new Error(itemsErr.message);
 
@@ -425,16 +384,8 @@ function Storefront() {
     }
   };
 
-  const sections: Array<Product["category"]> = ["PREMIUM SERIES", "SIGNATURE COLLECTION"];
-
   return (
     <div className="min-h-screen">
-      {/* Sale announcement bar */}
-      {isFlashSaleActive() && (
-        <div className="relative z-50 bg-primary text-primary-foreground text-center text-[11px] sm:text-xs tracking-[0.15em] uppercase font-semibold py-2 px-4">
-          {FLASH_SALE_PERCENT_OFF}% Off Everything — Ends August 14
-        </div>
-      )}
       {/* Navbar */}
       <header className="sticky top-0 z-40 backdrop-blur-md bg-background/70 border-b border-border">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 h-20 flex items-center justify-between gap-2">
@@ -543,8 +494,9 @@ function Storefront() {
         {loadError && !loading && (
           <p className="text-center text-destructive mt-16 text-sm">Could not load menu: {loadError}</p>
         )}
-        {!loading && !loadError && sections.map((section) => {
+        {!loading && !loadError && SECTION_ORDER.map((section) => {
           const items = products.filter((p) => p.category === section);
+          if (items.length === 0) return null; // hides empty categories
           return (
             <ProductCategorySection
               key={section}
@@ -640,7 +592,7 @@ function Storefront() {
                 <ShoppingBag className="h-10 w-10 gold-text" />
                 <p className="mt-6 font-serif text-xl text-foreground">Your cart awaits</p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Choose a cheesecake from our collection to begin.
+                  Choose something from our collection to begin.
                 </p>
               </div>
             ) : (

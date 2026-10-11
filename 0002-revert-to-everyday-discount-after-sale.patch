@@ -1,0 +1,137 @@
+From 0a63651f399a972bbf715007f93c0994a71bb1c1 Mon Sep 17 00:00:00 2001
+From: Claude <claude@anthropic.com>
+Date: Tue, 4 Aug 2026 20:40:03 +0000
+Subject: [PATCH] Revert to permanent everyday discount after flash sale ends
+
+---
+ src/routes/index.tsx | 73 ++++++++++++++++++++++++++++----------------
+ 1 file changed, 46 insertions(+), 27 deletions(-)
+
+diff --git a/src/routes/index.tsx b/src/routes/index.tsx
+index 450255c..f948c6e 100644
+--- a/src/routes/index.tsx
++++ b/src/routes/index.tsx
+@@ -27,6 +27,7 @@ type Product = {
+   price: number;
+   originalPrice?: number;
+   onSale?: boolean;
++  saleLabel?: string;
+   image_url: string;
+   category: "PREMIUM SERIES" | "SIGNATURE COLLECTION";
+ };
+@@ -46,30 +47,30 @@ const LOCAL_IMAGES: Record<string, string> = {
+   "Strawberry.exe": strawberryImg.url,
+ };
+ 
+-// Regular (non-sale) prices for locally-priced products.
+-const LOCAL_PRICES: Record<string, { originalPrice: number }> = {
+-  "Binary Cookie": { originalPrice: 2600 },
+-  "Pistachio Table": { originalPrice: 3200 },
+-  "Biscoff Override": { originalPrice: 2950 },
+-  "Mango.io": { originalPrice: 2800 },
+-  "Strawberry.exe": { originalPrice: 2800 },
++// Baseline everyday prices — this is the permanent small discount that was
++// always on before the 14% flash sale, and what the site reverts to once
++// the flash sale ends.
++const LOCAL_PRICES: Record<string, { price: number; originalPrice: number }> = {
++  "Binary Cookie": { price: 2499, originalPrice: 2600 },
++  "Pistachio Table": { price: 2999, originalPrice: 3200 },
++  "Biscoff Override": { price: 2850, originalPrice: 2950 },
++  "Mango.io": { price: 2599, originalPrice: 2800 },
++  "Strawberry.exe": { price: 2599, originalPrice: 2800 },
+ };
+ 
+ // ==========================================
+-// SALE WINDOW: 14% off, active from now through
+-// August 14, ending at midnight (00:00) on
+-// August 15, Pakistan Standard Time (UTC+5).
++// FLASH SALE WINDOW: 14% off (computed off the
++// full original price, not the everyday price),
++// active from now through August 14, ending at
++// midnight (00:00) on August 15, Pakistan time.
++// Once this window ends, prices revert to the
++// permanent everyday discount in LOCAL_PRICES above.
+ // ==========================================
+-const SALE_PERCENT_OFF = 14;
+-const SALE_END_UTC_MS = Date.UTC(2026, 7, 14, 19, 0, 0); // Aug 15 00:00 PKT == Aug 14 19:00 UTC
++const FLASH_SALE_PERCENT_OFF = 14;
++const FLASH_SALE_END_UTC_MS = Date.UTC(2026, 7, 14, 19, 0, 0); // Aug 15 00:00 PKT == Aug 14 19:00 UTC
+ 
+-function isSaleActive() {
+-  return Date.now() < SALE_END_UTC_MS;
+-}
+-
+-function applySale(originalPrice: number, onSale: boolean) {
+-  if (!onSale) return originalPrice;
+-  return Math.round(originalPrice * (1 - SALE_PERCENT_OFF / 100));
++function isFlashSaleActive() {
++  return Date.now() < FLASH_SALE_END_UTC_MS;
+ }
+ 
+ const DELIVERY_FEE = 350;
+@@ -197,7 +198,7 @@ function ProductCategorySection({
+                   </span>
+                   {p.onSale && (
+                     <span className="text-[10px] tracking-[0.2em] uppercase font-semibold px-2 py-0.5 rounded-sm bg-primary/15 text-primary border border-primary/40">
+-                      {SALE_PERCENT_OFF}% Off
++                      {p.saleLabel || "Sale"}
+                     </span>
+                   )}
+                 </div>
+@@ -258,18 +259,36 @@ function Storefront() {
+         setLoadError(error.message);
+         setProducts([]);
+       } else {
+-        const saleActive = isSaleActive();
++        const flashSaleActive = isFlashSaleActive();
+         const rows = (data ?? []).map((r: any) => {
+           const local = LOCAL_PRICES[r.name];
+           const regularPrice = local ? local.originalPrice : Number(r.price) || 0;
+-          const onSale = saleActive; // uniform storewide sale window
++
++          if (flashSaleActive) {
++            // 14% off the full regular price, storewide, only during the flash sale window.
++            const flashPrice = Math.round(regularPrice * (1 - FLASH_SALE_PERCENT_OFF / 100));
++            return {
++              id: String(r.id),
++              name: r.name,
++              description: r.description ?? "",
++              price: flashPrice,
++              originalPrice: regularPrice,
++              onSale: true,
++              saleLabel: `${FLASH_SALE_PERCENT_OFF}% Off`,
++              image_url: LOCAL_IMAGES[r.name] || "",
++              category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
++            };
++          }
++
++          // Flash sale window over — revert to the permanent everyday price/discount.
+           return {
+             id: String(r.id),
+             name: r.name,
+             description: r.description ?? "",
+-            price: applySale(regularPrice, onSale),
+-            originalPrice: onSale ? regularPrice : undefined,
+-            onSale,
++            price: local ? local.price : regularPrice,
++            originalPrice: local ? local.originalPrice : undefined,
++            onSale: !!local,
++            saleLabel: "Sale",
+             image_url: LOCAL_IMAGES[r.name] || "",
+             category: (r.category === "SIGNATURE COLLECTION" ? "SIGNATURE COLLECTION" : "PREMIUM SERIES") as Product["category"],
+           };
+@@ -411,9 +430,9 @@ function Storefront() {
+   return (
+     <div className="min-h-screen">
+       {/* Sale announcement bar */}
+-      {isSaleActive() && (
++      {isFlashSaleActive() && (
+         <div className="relative z-50 bg-primary text-primary-foreground text-center text-[11px] sm:text-xs tracking-[0.15em] uppercase font-semibold py-2 px-4">
+-          {SALE_PERCENT_OFF}% Off Everything — Ends August 14
++          {FLASH_SALE_PERCENT_OFF}% Off Everything — Ends August 14
+         </div>
+       )}
+       {/* Navbar */}
+-- 
+2.43.0
+
