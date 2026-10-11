@@ -47,6 +47,15 @@ const LOCAL_IMAGES: Record<string, string> = {
   "Strawberry.exe": strawberryImg.url,
 };
 
+// Cloudinary images for new products — used directly, so they don't depend on Supabase
+const REMOTE_IMAGES: Record<string, string> = {
+  "Pizzokie Protocol": "https://res.cloudinary.com/wxucoyxn/image/upload/WhatsApp_Image_2026-10-11_at_8.11.20_PM.jpg",
+  "Banana Byte": "https://res.cloudinary.com/wxucoyxn/image/upload/f_auto,q_auto/WhatsApp_Image_2026-10-11_at_8.23.06_PM",
+  "Nutella Overflow": "https://res.cloudinary.com/wxucoyxn/image/upload/WhatsApp_Image_2026-10-11_at_8.54.53_PM.jpg",
+  "Pistachio Thread": "https://res.cloudinary.com/wxucoyxn/image/upload/WhatsApp_Image_2026-10-11_at_9.29.24_PM.jpg",
+  "Boston Legacy": "https://res.cloudinary.com/wxucoyxn/image/upload/WhatsApp_Image_2026-10-11_at_9.28.16_PM.jpg",
+};
+
 // Order the sections appear on the page
 const SECTION_ORDER: Category[] = ["NEW ARRIVAL", "PREMIUM SERIES", "SIGNATURE COLLECTION", "DONUTS"];
 
@@ -66,8 +75,13 @@ const CATEGORY_BADGES: Record<Category, string> = {
   "DONUTS": "Donuts",
 };
 
-const toCategory = (c: unknown): Category =>
-  SECTION_ORDER.includes(c as Category) ? (c as Category) : "PREMIUM SERIES";
+const toCategory = (c: unknown): Category => {
+  const v = String(c ?? "").trim().toUpperCase();
+  if (v === "NEW ARRIVAL" || v === "NEW ARRIVALS") return "NEW ARRIVAL";
+  if (v === "DONUT" || v === "DONUTS") return "DONUTS";
+  if (v === "SIGNATURE COLLECTION") return "SIGNATURE COLLECTION";
+  return "PREMIUM SERIES";
+};
 
 const DELIVERY_FEE = 350;
 
@@ -153,6 +167,12 @@ function ProductCategorySection({
         <div className="flex-1 gold-divider" />
       </div>
 
+      {section === "DONUTS" && (
+        <p className="-mt-4 mb-10 text-center text-sm text-muted-foreground tracking-wide">
+          All donuts are sold as a box of 6.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {items.map((p, i) => (
           <article
@@ -183,9 +203,14 @@ function ProductCategorySection({
             <div className="p-6 flex flex-col flex-1">
               <div className="flex flex-col gap-1">
                 <h4 className="font-serif text-2xl text-foreground">{p.name}</h4>
-                <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
-                  {fmtPKR(p.price)}
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-serif text-lg text-foreground font-bold whitespace-nowrap">
+                    {fmtPKR(p.price)}
+                  </span>
+                  {p.category === "DONUTS" && (
+                    <span className="text-xs text-muted-foreground">/ box of 6</span>
+                  )}
+                </div>
               </div>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed flex-1">
                 {p.description}
@@ -249,7 +274,7 @@ function Storefront() {
           description: r.description ?? "",
           price: Number(r.price) || 0,
           // Existing cheesecakes keep their uploaded local image; new products use the Supabase image_url
-          image_url: LOCAL_IMAGES[r.name] || r.image_url || "",
+          image_url: LOCAL_IMAGES[r.name] || REMOTE_IMAGES[r.name] || r.image_url || "",
           category: toCategory(r.category),
         }));
         setProducts(rows);
@@ -611,7 +636,9 @@ function Storefront() {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">{fmtPKR(item.price)} each</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {fmtPKR(item.price)} {item.category === "DONUTS" ? "per box of 6" : "each"}
+                      </p>
                       <div className="mt-3 flex items-center justify-between">
                         <div className="inline-flex items-center border border-border rounded-sm">
                           <button
